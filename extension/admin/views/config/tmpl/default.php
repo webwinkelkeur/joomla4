@@ -4,6 +4,8 @@ defined('_JEXEC') or die('Restricted Access');
 
 JHtml::_('behavior.tooltip');
 
+$config = $this->config;
+
 ?>
 <form action="<?php echo JRoute::_('index.php?option=com_webwinkelkeur'); ?>" method="POST" name="adminForm" id="adminForm">
     <table class="wwk-form">
@@ -68,9 +70,6 @@ JHtml::_('behavior.tooltip');
                         Nee, geen uitnodigingen versturen.
                     </label>
                 </fieldset>
-                <?php if(!$this->woocommerce): ?>
-                <p class="description">Installeer en activeer WooCommerce om deze functionaliteit te kunnen gebruiken.</p>
-                <?php endif; ?>
                 <p class="description">Deze functionaliteit is alleen beschikbaar voor Plus-leden.</p>
             </td>
         </tr> 

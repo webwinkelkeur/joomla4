@@ -11,11 +11,16 @@
     <version>1.0.0</version>
     <!-- The description is optional and defaults to the name -->
     <description>De Joomla plugin zorgt voor een eenvoudige integratie van het WebwinkelKeur binnen jouw webwinkel. Hiermee is het heel eenvoudig om de innovatieve WebwinkelKeur Sidebar in jouw Joomla website of VirtueMart webwinkel te integreren. Wanneer je VirtueMart gebruikt, kunnen er bovendien automatisch uitnodigingen naar je klanten worden gestuurd.</description>
-    <update>
-        <schemas>
-            <schemapath type="mysql">sql/updates/mysql</schemapath>
-        </schemas>
-    </update>
+    <install>
+        <sql>
+            <file driver="mysql" charset="utf8">sql/install.sql</file>
+        </sql>
+    </install>
+    <uninstall>
+        <sql>
+            <file driver="mysql" charset="utf8">sql/uninstall.sql</file>
+        </sql>
+    </uninstall>
     <!--
     <files folder="site">
         <filename>index.html</filename>
@@ -32,6 +37,7 @@
             <filename>webwinkelkeur.css</filename>
             <filename>controller.php</filename>
             <folder>views</folder>
+            <folder>models</folder>
             <folder>sql</folder>
         </files>
         <languages folder="admin">

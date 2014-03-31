@@ -25,6 +25,10 @@
 .wwk-form p.description {
     color: #666;
 }
+.wwk-form input.regular-text,
+.wwk-form input.small-text {
+    padding: 5px;
+}
 .wwk-form input.regular-text {
     width: 350px;
 }
