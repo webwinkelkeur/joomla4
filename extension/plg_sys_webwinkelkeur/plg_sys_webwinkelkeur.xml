@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <extension type="plugin" version="2.5.0" group="system">
-    <name>PLG_SYS_WEBWINKELKEUR</name>
+    <name>WebwinkelKeur</name>
     <version>1.0.0</version>
     <creationDate>March 2014</creationDate>
     <author>Albert Peschar</author>
