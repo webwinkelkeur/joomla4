@@ -1,0 +1,11 @@
+#!/bin/bash
+set -eu
+
+cd `dirname "$0"`
+cd ..
+
+mkdir -p dist
+
+cd extension
+rm -f ../dist/extension-dev.zip
+find . -not -name '.*.swp' | xargs zip -9 ../dist/extension-dev.zip
