@@ -28,4 +28,10 @@ class WebwinkelKeurModelConfig extends JModelItem {
         $db->setQuery("REPLACE INTO `#__webwinkelkeur_config` SET `id` = 1, `value` = " . $db->quote($json));
         return !!$db->query();
     }
+
+    public function getVirtueMart() {
+        $db = JFactory::getDBO();
+        $db->setQuery("SELECT `enabled` FROM `#__extensions` WHERE `name` = 'virtuemart' LIMIT 1");
+        return !!$db->loadResult();
+    }
 }

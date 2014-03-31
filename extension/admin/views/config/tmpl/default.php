@@ -53,6 +53,7 @@ $config = $this->config;
             </p>
             </td>
         </tr>
+        <?php if($this->virtuemart): ?>
         <tr valign="top">
             <th scope="row">Uitnodigingen versturen</th>
             <td>
@@ -81,6 +82,7 @@ $config = $this->config;
             </p>
             </td>
         </tr>
+        <?php endif; ?>
         <tr valign="top">
             <th scope="row"><label for="webwinkelkeur-tooltip">Tooltip weergeven</label></th>
             <td>
