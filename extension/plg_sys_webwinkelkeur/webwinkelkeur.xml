@@ -10,5 +10,7 @@
     <files>
         <filename plugin="webwinkelkeur">webwinkelkeur.php</filename>
         <filename plugin="webwinkelkeur">sidebar.php</filename>
+        <filename plugin="webwinkelkeur">URLRetriever.php</filename>
+        <filename plugin="webwinkelkeur">api.php</filename>
     </files>
 </extension>
