@@ -26,12 +26,16 @@
         <folder>images</folder>
     </media>
     <administration>
-        <menu img="../media/com_webwinkelkeur/images/logo16.png">WebwinkelKeur</menu>
+        <menu img="../media/com_webwinkelkeur/images/logo16.png">COM_WEBWINKELKEUR_MENU</menu>
         <files folder="admin">
             <filename>webwinkelkeur.php</filename>
             <filename>controller.php</filename>
             <folder>views</folder>
             <folder>sql</folder>
         </files>
+        <languages folder="admin">
+            <language tag="en-GB">language/com_webwinkelkeur.sys.ini</language>
+            <language tag="nl-NL">language/com_webwinkelkeur.sys.ini</language>
+        </languages>
     </administration>
 </extension>
