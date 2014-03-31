@@ -1,0 +1,34 @@
+#!/usr/bin/env python2.7
+import re
+import sys
+import mechanize
+
+if __name__ == '__main__':
+    if len(sys.argv) != 5:
+        print >> sys.stderr, "Usage: %s <url> <user> <password> <file>" % sys.argv[0]
+        sys.exit(1)
+
+    url = sys.argv[1].rstrip('/')
+    user = sys.argv[2]
+    password = sys.argv[3]
+    zipfile = sys.argv[4]
+
+    br = mechanize.Browser()
+    br.set_handle_robots(False)
+
+    # log in
+    br.open(url + '/administrator/')
+    br.select_form(nr=0)
+    br['username'] = user
+    br['passwd'] = password
+    br.submit()
+
+    # install extension
+    br.open(url + '/administrator/index.php?option=com_installer')
+    br.select_form(name='adminForm')
+    br.form.find_control('install_package').add_file(open(zipfile, 'r'), filename='extension.zip')
+    br.submit()
+    assert br.viewing_html()
+
+    # show messages
+    # TODO
