@@ -12,6 +12,9 @@ class WebwinkelKeurController extends JController {
 
         // add toolbar
         JToolBarHelper::title('WebwinkelKeur', 'webwinkelkeur');
+        JToolBarHelper::apply();
+        JToolBarHelper::save();
+        JToolBarHelper::cancel('cancel', 'JTOOLBAR_CLOSE');
 
         // set document title
         $doc = JFactory::getDocument();
