@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="plugin" version="2.5.0" group="system">
+    <name>PLG_SYS_WEBWINKELKEUR</name>
+    <version>1.0.0</version>
+    <creationDate>March 2014</creationDate>
+    <author>Albert Peschar</author>
+    <authorEmail>albert@peschar.net</authorEmail>
+    <authorUrl>https://peschar.net</authorUrl>
+    <copyright>(C) 2014 Albert Peschar</copyright>
+    <files>
+        <filename plugin="plg_sys_webwinkelkeur">plg_sys_webwinkelkeur.php</filename>
+    </files>
+</extension>

@@ -1,16 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <extension type="component" version="2.5.0" method="upgrade">
-    <name>WebwinkelKeur</name>
-    <!-- The following elements are optional and free of formatting constraints -->
+    <name>COM_WEBWINKELKEUR</name>
+    <version>1.0.0</version>
     <creationDate>March 2014</creationDate>
     <author>Albert Peschar</author>
     <authorEmail>albert@peschar.net</authorEmail>
     <authorUrl>https://peschar.net</authorUrl>
     <copyright>(C) 2014 Albert Peschar</copyright>
-    <!--  The version string is recorded in the components table -->
-    <version>1.0.0</version>
-    <!-- The description is optional and defaults to the name -->
-    <description>De Joomla plugin zorgt voor een eenvoudige integratie van het WebwinkelKeur binnen jouw webwinkel. Hiermee is het heel eenvoudig om de innovatieve WebwinkelKeur Sidebar in jouw Joomla website of VirtueMart webwinkel te integreren. Wanneer je VirtueMart gebruikt, kunnen er bovendien automatisch uitnodigingen naar je klanten worden gestuurd.</description>
     <install>
         <sql>
             <file driver="mysql" charset="utf8">sql/install.sql</file>
@@ -21,12 +17,6 @@
             <file driver="mysql" charset="utf8">sql/uninstall.sql</file>
         </sql>
     </uninstall>
-    <!--
-    <files folder="site">
-        <filename>index.html</filename>
-        <filename>helloworld.php</filename>
-    </files>
-    -->
     <media destination="com_webwinkelkeur" folder="media">
         <folder>images</folder>
     </media>
