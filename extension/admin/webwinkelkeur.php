@@ -4,6 +4,7 @@ defined('_JEXEC') or die('Restricted access');
 
 $doc = JFactory::getDocument();
 $doc->addStyleDeclaration('.icon-48-webwinkelkeur { background-image: url(../media/com_webwinkelkeur/images/logo48.png); }');
+$doc->addStyleSheet('components/com_webwinkelkeur/webwinkelkeur.css');
  
 jimport('joomla.application.component.controller');
  

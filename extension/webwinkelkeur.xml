@@ -29,6 +29,7 @@
         <menu img="../media/com_webwinkelkeur/images/logo16.png">COM_WEBWINKELKEUR_MENU</menu>
         <files folder="admin">
             <filename>webwinkelkeur.php</filename>
+            <filename>webwinkelkeur.css</filename>
             <filename>controller.php</filename>
             <folder>views</folder>
             <folder>sql</folder>

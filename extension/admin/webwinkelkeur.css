@@ -1,0 +1,33 @@
+.wwk-form * {
+    padding: 0;
+    margin: 0;
+    float: none;
+    font-size: 12px;
+}
+.wwk-form th,
+.wwk-form td {
+    text-align: left;
+    padding: 5px;
+    vertical-align: top;
+}
+.wwk-form label {
+    display: inline;
+}
+.wwk-form fieldset {
+    border: 0;
+}
+.wwk-form fieldset label {
+    line-height: 180%;
+}
+.wwk-form p {
+    margin: .5em 0;
+}
+.wwk-form p.description {
+    color: #666;
+}
+.wwk-form input.regular-text {
+    width: 350px;
+}
+.wwk-form input.small-text {
+    width: 50px;
+}
