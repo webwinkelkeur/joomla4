@@ -5,3 +5,5 @@ CREATE TABLE `#__webwinkelkeur_config` (
     `value` TEXT NOT NULL,
     PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+UPDATE `#__extensions` SET `enabled` = 1 WHERE `type` = 'plugin' AND `element` = 'webwinkelkeur';
