@@ -1,0 +1,23 @@
+#!/bin/bash
+set -eu
+
+cd `dirname "$0"`
+cd ..
+
+root=$PWD
+
+tmp=`mktemp -d -t virtuemart`
+trap "rm -rf '$tmp'" EXIT
+mkdir $tmp/packages
+
+cd $root/extension/com_webwinkelkeur
+git archive -0 -o $tmp/packages/com_webwinkelkeur.zip HEAD .
+
+cd $root/extension/plg_sys_webwinkelkeur
+git archive -0 -o $tmp/packages/plg_sys_webwinkelkeur.zip HEAD .
+
+git show HEAD:extension/pkg_webwinkelkeur.xml > $tmp/pkg_webwinkelkeur.xml
+
+cd $tmp
+mkdir -p $root/dist
+zip -qr9 $root/dist/webwinkelkeur-joomla.zip pkg_webwinkelkeur.xml packages/
