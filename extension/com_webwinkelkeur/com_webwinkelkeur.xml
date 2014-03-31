@@ -31,8 +31,8 @@
             <folder>sql</folder>
         </files>
         <languages folder="admin">
-            <language tag="en-GB">language/com_webwinkelkeur.sys.ini</language>
-            <language tag="nl-NL">language/com_webwinkelkeur.sys.ini</language>
+            <language tag="en-GB">language/en-GB.com_webwinkelkeur.sys.ini</language>
+            <language tag="nl-NL">language/nl-NL.com_webwinkelkeur.sys.ini</language>
         </languages>
     </administration>
 </extension>
