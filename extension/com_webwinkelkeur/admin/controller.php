@@ -4,7 +4,7 @@ defined('_JEXEC') or die('Restricted access');
  
 jimport('joomla.application.component.controller');
  
-class WebwinkelKeurController extends JController {
+class WebwinkelKeurController extends JControllerLegacy {
     private $wwk_fields = array(
         'wwk_shop_id',
         'wwk_api_key',

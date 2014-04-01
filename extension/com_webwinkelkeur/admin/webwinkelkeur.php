@@ -8,7 +8,7 @@ $doc->addStyleSheet('components/com_webwinkelkeur/webwinkelkeur.css');
  
 jimport('joomla.application.component.controller');
  
-$controller = JController::getInstance('WebwinkelKeur');
+$controller = JControllerLegacy::getInstance('WebwinkelKeur');
  
 $jinput = JFactory::getApplication()->input;
 $task = $jinput->get('task', "", 'STR' );
