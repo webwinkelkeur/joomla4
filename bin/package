@@ -18,8 +18,9 @@ git archive -0 -o $tmp/packages/plg_sys_webwinkelkeur.zip HEAD .
 
 git show HEAD:extension/pkg_webwinkelkeur.xml > $tmp/pkg_webwinkelkeur.xml
 git show HEAD:README.txt > $tmp/README.txt
+git show HEAD:COPYING.txt > $tmp/COPYING.txt
 
 cd $tmp
 mkdir -p $root/dist
-zip -qr9 pkg_webwinkelkeur.zip pkg_webwinkelkeur.xml packages/
+zip -qr9 pkg_webwinkelkeur.zip COPYING.txt README.txt pkg_webwinkelkeur.xml packages/
 zip -qr9 $root/dist/webwinkelkeur-joomla.zip pkg_webwinkelkeur.zip README.txt
