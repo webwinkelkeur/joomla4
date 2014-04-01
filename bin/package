@@ -22,5 +22,4 @@ git show HEAD:COPYING.txt > $tmp/COPYING.txt
 
 cd $tmp
 mkdir -p $root/dist
-zip -qr9 pkg_webwinkelkeur.zip COPYING.txt README.txt pkg_webwinkelkeur.xml packages/
-zip -qr9 $root/dist/webwinkelkeur-joomla.zip pkg_webwinkelkeur.zip README.txt
+zip -qr9 $root/dist/pkg_webwinkelkeur.zip COPYING.txt README.txt pkg_webwinkelkeur.xml packages/
