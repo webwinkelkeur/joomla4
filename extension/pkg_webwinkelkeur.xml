@@ -10,6 +10,7 @@
     <authorEmail>albert@peschar.net</authorEmail>
     <authorUrl>https://peschar.net</authorUrl>
     <copyright>(C) 2014 Albert Peschar</copyright>
+    <license>GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html</license>
     <description>De Joomla extensie zorgt voor een eenvoudige integratie van het WebwinkelKeur binnen jouw webwinkel. Hiermee is het heel eenvoudig om de innovatieve WebwinkelKeur Sidebar in jouw Joomla website of VirtueMart webwinkel te integreren. Wanneer je VirtueMart gebruikt, kunnen er bovendien automatisch uitnodigingen naar je klanten worden gestuurd.</description>
     <files folder="packages">
         <file type="plugin" id="webwinkelkeur" group="system">plg_sys_webwinkelkeur.zip</file>
