@@ -5,7 +5,7 @@ Deze module integreert de WebwinkelKeur sidebar in uw Joomla website en/of
 VirtueMart webshop. De module kan eenvoudig worden geïnstalleerd. Gebruik
 daarvoor de onderstaande installatieinstructies.
 
-De module is getest met Joomla versie 2.5 en VirtueMart versie 2.
+De module is getest met Joomla versie 2.5 en 3.2 en met VirtueMart versie 2.
 
 (C) 2013 Albert Peschar <albert@peschar.net>
 
