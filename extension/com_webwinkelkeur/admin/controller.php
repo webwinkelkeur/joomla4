@@ -38,6 +38,7 @@ class WebwinkelKeurController extends JControllerLegacy {
 
     private function doApply() {
         $config = $this->get('Config');
+        $errors = array();
 
         foreach($this->wwk_fields as $field_name) {
             $value = @$_POST['webwinkelkeur_' . $field_name];
