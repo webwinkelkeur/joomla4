@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <extension type="package" version="2.5.0">
-    <name>WebwinkelKeur Package</name>
+    <name>WebwinkelKeur</name>
     <version>1.0.0</version>
     <packagename>webwinkelkeur</packagename>
     <packager>Albert Peschar</packager>
