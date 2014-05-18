@@ -4,6 +4,7 @@
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
+defined('_JEXEC') or die('Restricted access');
 require_once dirname(__FILE__) . '/URLRetriever.php';
 class WebwinkelKeurAPI {
     private $shop_id;
