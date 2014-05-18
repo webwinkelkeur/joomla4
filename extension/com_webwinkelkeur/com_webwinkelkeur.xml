@@ -7,6 +7,7 @@
     <authorEmail>albert@peschar.net</authorEmail>
     <authorUrl>https://peschar.net</authorUrl>
     <copyright>(C) 2014 Albert Peschar</copyright>
+    <license>GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html</license>
     <install>
         <sql>
             <file driver="mysql" charset="utf8">sql/install.sql</file>
