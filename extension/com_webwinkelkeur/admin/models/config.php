@@ -11,8 +11,6 @@ jimport('joomla.application.component.modelitem');
 class WebwinkelKeurModelConfig extends JModelItem {
     private $wwk_config = array(
         'invite_delay'     => 3,
-        'sidebar_position' => 'left',
-        'tooltip'          => true,
         'javascript'       => true,
     );
 

@@ -41,24 +41,12 @@ class PlgSystemWebwinkelKeur extends JPlugin {
         if(empty($config['wwk_shop_id']))
             return;
 
-        if(empty($config['sidebar'])
-           && empty($config['tooltip'])
-           && empty($config['javascript'])
-        )
+        if(empty($config['javascript']))
             return;
 
         $settings = array(
             '_webwinkelkeur_id' => (int) $config['wwk_shop_id'],
-            '_webwinkelkeur_sidebar' => !empty($config['sidebar']),
-            '_webwinkelkeur_tooltip' => !empty($config['tooltip']),
         );
-
-        if($sidebar_position = @$config['sidebar_position'])
-            $settings['_webwinkelkeur_sidebar_position'] = $sidebar_position;
-
-        $sidebar_top = @$config['sidebar_top'];
-        if(is_string($sidebar_top) && $sidebar_top != '')
-            $settings['_webwinkelkeur_sidebar_top'] = $sidebar_top;
 
         ob_start();
         require dirname(__FILE__) . '/sidebar.php';
@@ -87,10 +75,13 @@ class PlgSystemWebwinkelKeur extends JPlugin {
             SELECT
                 vo.virtuemart_order_id,
                 vo.order_number,
-                vou.email
+                vo.order_language,
+                vou.email,
+                CONCAT(vou.first_name, ' ', vou.last_name) as customername
             FROM `#__virtuemart_orders` vo
             INNER JOIN `#__virtuemart_order_userinfos` vou ON
                 vou.virtuemart_order_id = vo.virtuemart_order_id
+                AND vou.address_type = 'BT'
             LEFT JOIN `#__webwinkelkeur_virtuemart_order` wvo ON
                 wvo.virtuemart_order_id = vo.virtuemart_order_id
             WHERE
@@ -116,7 +107,7 @@ class PlgSystemWebwinkelKeur extends JPlugin {
             $error = null;
             $url = null;
             try {
-                $api->invite($order['order_number'], $order['email'], $delay, $noremail);
+                $api->invite($order['order_number'], $order['email'], $delay, $order['order_language'], $order['customername'], $noremail);
             } catch(WebwinkelKeurAPIAlreadySentError $e) {
             } catch(WebwinkelKeurAPIError $e) {
                 $error = $e->getMessage();

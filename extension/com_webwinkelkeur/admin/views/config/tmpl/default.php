@@ -26,37 +26,18 @@ $config = $this->config;
             </td>
         </tr>
         <tr valign="top">
-            <th scope="row"><label for="webwinkelkeur-sidebar">Sidebar weergeven</label></th>
+            <th scope="row"><label for="webwinkelkeur-javascript">JavaScript-integratie</label></th>
             <td>
                 <label>
-                    <input type="checkbox" id="webwinkelkeur-sidebar" name="webwinkelkeur_sidebar" value="1" <?php if(@$config['sidebar']) echo 'checked'; ?> />
-                    Ja, voeg de WebwinkelKeur Sidebar toe aan mijn website.
+                    <input type="checkbox" id="webwinkelkeur-javascript" name="webwinkelkeur_javascript" value="1" <?php if(@$config['javascript']) echo 'checked'; ?> />
+                    Ja, voeg de WebwinkelKeur JavaScript toe aan mijn website.
                 </label>
+                <p class="description">
+                Gebruik de JavaScript-integratie om de sidebar en de tooltip op je site te plaatsen.<br />
+                Alle instellingen voor de sidebar en de tooltip, vind je in het <a href="https://dashboard.webwinkelkeur.nl/integration" target="_blank">WebwinkelKeur Dashboard</a>.
+                </p>
             </td>
         </tr> 
-        <tr valign="top">
-            <th scope="row">Sidebar positie</th>
-            <td>
-                <fieldset>
-                    <label>
-                        <input type="radio" name="webwinkelkeur_sidebar_position" value="left" <?php if(@$config['sidebar_position'] == 'left') echo 'checked'; ?> />
-                        Links
-                    </label><br>
-                    <label>
-                        <input type="radio" name="webwinkelkeur_sidebar_position" value="right" <?php if(@$config['sidebar_position'] == 'right') echo 'checked'; ?> />
-                        Rechts
-                    </label>
-                </fieldset>
-            </td>
-        </tr> 
-        <tr valign="top">
-            <th scope="row"><label for="webwinkelkeur-sidebar-top">Sidebar hoogte</label></th>
-            <td><input name="webwinkelkeur_sidebar_top" type="text" id="webwinkelkeur-sidebar-top" value="<?php echo htmlspecialchars(@$config['sidebar_top'], ENT_QUOTES, 'UTF-8'); ?>" class="small-text" />
-            <p class="description">
-            Aantal pixels vanaf de bovenkant.
-            </p>
-            </td>
-        </tr>
         <?php if($this->virtuemart): ?>
         <tr valign="top">
             <th scope="row">Uitnodigingen versturen</th>
@@ -87,24 +68,6 @@ $config = $this->config;
             </td>
         </tr>
         <?php endif; ?>
-        <tr valign="top">
-            <th scope="row"><label for="webwinkelkeur-tooltip">Tooltip weergeven</label></th>
-            <td>
-                <label>
-                    <input type="checkbox" id="webwinkelkeur-tooltip" name="webwinkelkeur_tooltip" value="1" <?php if(@$config['tooltip']) echo 'checked'; ?> />
-                    Ja, voeg de WebwinkelKeur Tooltip toe aan mijn website.
-                </label>
-            </td>
-        </tr> 
-        <tr valign="top">
-            <th scope="row"><label for="webwinkelkeur-javascript">JavaScript-integratie</label></th>
-            <td>
-                <label>
-                    <input type="checkbox" id="webwinkelkeur-javascript" name="webwinkelkeur_javascript" value="1" <?php if(@$config['javascript']) echo 'checked'; ?> />
-                    Ja, voeg de WebwinkelKeur JavaScript toe aan mijn website.
-                </label>
-            </td>
-        </tr> 
     </table>
     <div>
 		<input type="hidden" name="task" value="" />

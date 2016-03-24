@@ -12,12 +12,8 @@ class WebwinkelKeurController extends JControllerLegacy {
     private $wwk_fields = array(
         'wwk_shop_id',
         'wwk_api_key',
-        'sidebar',
-        'sidebar_position',
-        'sidebar_top',
         'invite',
         'invite_delay',
-        'tooltip',
         'javascript',
     );
     
