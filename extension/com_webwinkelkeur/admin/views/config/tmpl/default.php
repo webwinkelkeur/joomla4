@@ -21,7 +21,7 @@ $config = $this->config;
             <th scope="row"><label for="wwk-api-key">API key</label></th>
             <td><input name="webwinkelkeur_wwk_api_key" type="text" id="wwk-api-key" value="<?php echo htmlspecialchars(@$config['wwk_api_key'], ENT_QUOTES, 'UTF-8'); ?>" class="regular-text" />
             <p class="description">
-            Deze gegevens vindt u na het inloggen op <a href="https://www.webwinkelkeur.nl/webwinkel/" target="_blank">WebwinkelKeur.nl</a>.<br />Klik op 'Keurmerk plaatsen'. De gegevens zijn vervolgens onderaan deze pagina te vinden.
+            Deze gegevens vindt u na het inloggen op <a href="https://dashboard.webwinkelkeur.nl" target="_blank">WebwinkelKeur Dashboard</a>.<br />Klik op 'Installatie' > 'Wizard'. De gegevens zijn vervolgens in de uitleg op deze pagina te vinden.
             </p>
             </td>
         </tr>
@@ -38,7 +38,16 @@ $config = $this->config;
                 </p>
             </td>
         </tr> 
-        <?php if($this->virtuemart): ?>
+        <?php if($this->virtuemart OR $this->hikashop): ?>
+        <tr valign="top">
+            <th scope="row">Uitleg Uitnodigingen versturen</th>
+            <td>
+            <p class="description">
+            <?php if($this->virtuemart) echo 'VirtueMart verstuurt de uitnodiging x dagen na het moment dat de bestelling de status S (shipped) heeft bereikt.'; ?><br />
+            <?php if($this->hikashop) echo 'HikaShop verstuurt de uitnodiging x dagen na het moment dat een bestelling de status Shipped krijgt.'; ?>
+            </p>
+            </td>
+        </tr>
         <tr valign="top">
             <th scope="row">Uitnodigingen versturen</th>
             <td>
@@ -63,7 +72,7 @@ $config = $this->config;
             <th scope="row"><label for="webwinkelkeur-invite-delay">Wachttijd voor uitnodiging</label></th>
             <td><input name="webwinkelkeur_invite_delay" type="text" id="webwinkelkeur-invite-delay" value="<?php echo htmlspecialchars(@$config['invite_delay'], ENT_QUOTES, 'UTF-8'); ?>" class="small-text" />
             <p class="description">
-            De uitnodiging wordt verstuurd nadat het opgegeven aantal dagen is verstreken na het verzenden van de bestelling.
+            De uitnodiging wordt verstuurd nadat het opgegeven aantal dagen is verstreken na het verzenden van de bestelling (status <strong>shipped</strong>!).
             </p>
             </td>
         </tr>

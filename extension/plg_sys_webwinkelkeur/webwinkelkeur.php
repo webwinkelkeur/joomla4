@@ -17,8 +17,10 @@ class PlgSystemWebwinkelKeur extends JPlugin {
 
     public function onAfterInitialise() {
         $app = JFactory::getApplication();
-        if(!$app->isSite())
-            $this->sendInvites();
+        if(!$app->isSite()) {
+            $this->sendHikashopInvites();
+            $this->sendVirtuemartInvites();
+        }
     }
 
     private function getConfig() {
@@ -55,10 +57,125 @@ class PlgSystemWebwinkelKeur extends JPlugin {
         JFactory::getDocument()->addCustomTag($script);
     }
 
-    private function sendInvites() {
+    /*
+    * Hikashop functions
+    */
+    function plgHikashopName(&$subject, $config){
+        parent::__construct($subject, $config);
+    }
+
+    function sendHikashopInvites() {
         $app = JFactory::getApplication();
         $db = JFactory::getDBO();
         $config = $this->getConfig();
+
+        // hikashop enabled?
+        $db->setQuery("SELECT enabled FROM #__extensions WHERE element = 'com_hikashop'");
+        $is_enabled = $db->loadResult();
+        if (!$is_enabled) {
+            return;
+        }
+
+        // invites enabled?
+        if(empty($config['invite'])
+           || empty($config['wwk_shop_id'])
+           || empty($config['wwk_api_key'])
+        )
+            return;
+
+        $delay = (int) @$config['invite_delay'];
+        $noremail = @$config['invite'] == 2;
+
+        // find orders
+        $db->setQuery("
+            SELECT
+                ho.order_id,
+                ho.order_number,
+                hu.user_email,
+                CONCAT(ha.address_firstname, ' ', ha.address_lastname) as customername,
+                hz.zone_code_3 as order_language
+            FROM `#__hikashop_order` ho
+            INNER JOIN `#__hikashop_user` hu ON
+                ho.order_user_id = hu.user_id
+            LEFT JOIN `#__hikashop_address` ha ON
+                ho.order_billing_address_id = ha.address_id
+            LEFT JOIN `#__hikashop_zone` hz ON
+                ha.address_country = hz.zone_namekey
+            LEFT JOIN `#__webwinkelkeur_hikashop_order` who ON
+                who.hikashop_order_id = ho.order_id
+            WHERE
+                (
+                    who.hikashop_order_id IS NULL
+                    OR (
+                        who.success = 0
+                        AND who.tries <= 5
+                        AND who.time < " . (time() - 1800) . "
+                    )
+                )
+                AND hu.user_email LIKE '%@%'
+                AND ho.order_status = 'shipped'
+        ");
+        $orders = $db->loadAssocList();
+        if(!$orders)
+            return;
+
+        // process
+        require_once dirname(__FILE__) . '/api.php';
+        foreach($orders as $order) {
+            $api = new WebwinkelKeurAPI($config['wwk_shop_id'], $config['wwk_api_key']);
+            $error = null;
+            $url = null;
+            try {
+                $api->invite($order['order_number'], $order['user_email'], $delay, $order['order_language'], $order['customername'], 'hikashop', $noremail);
+            } catch(WebwinkelKeurAPIAlreadySentError $e) {
+            } catch(WebwinkelKeurAPIError $e) {
+                $error = $e->getMessage();
+                $url = $e->getURL();
+            }
+
+            $now = time();
+
+            $db->setQuery("
+                INSERT INTO `#__webwinkelkeur_hikashop_order` SET
+                    `hikashop_order_id` = " . (int) $order['order_id'] . ",
+                    `success` = " . ($error ? '0' : '1') . ",
+                    `tries` = 1,
+                    `time` = " . $now . "
+                ON DUPLICATE KEY UPDATE
+                    `success` = IF(`success` = 1, 1, " . ($error ? '0' : '1') . "),
+                    `tries` = `tries` + 1,
+                    `time` = " . $now . "
+            ");
+            $db->query();
+
+            if($error) {
+                $db->setQuery("
+                    INSERT INTO `#__webwinkelkeur_invite_error` SET
+                        `url` = " . $db->quote($url) . ",
+                        `response` = " . $db->quote($error) . ",
+                        `time` = " . $now . ",
+                        `reported` = 0
+                ");
+                $db->query();
+                $app->enqueueMessage("De WebwinkelKeur uitnodiging voor order {$order['order_number']} kon niet worden verstuurd. -- $error", 'error');
+            }
+        }
+    }
+    
+    /*
+    * Virtuemart functions
+    */
+    private function sendVirtuemartInvites() {
+        $app = JFactory::getApplication();
+        $db = JFactory::getDBO();
+        $config = $this->getConfig();
+
+        // virtuemart enabled?
+        $db->setQuery("SELECT enabled FROM #__extensions WHERE element = 'com_virtuemart'");
+        $is_enabled = $db->loadResult();
+        if (!$is_enabled) {
+            return;
+        }
 
         // invites enabled?
         if(empty($config['invite'])
@@ -107,7 +224,7 @@ class PlgSystemWebwinkelKeur extends JPlugin {
             $error = null;
             $url = null;
             try {
-                $api->invite($order['order_number'], $order['email'], $delay, $order['order_language'], $order['customername'], $noremail);
+                $api->invite($order['order_number'], $order['email'], $delay, $order['order_language'], $order['customername'], 'virtuemart', $noremail);
             } catch(WebwinkelKeurAPIAlreadySentError $e) {
             } catch(WebwinkelKeurAPIError $e) {
                 $error = $e->getMessage();

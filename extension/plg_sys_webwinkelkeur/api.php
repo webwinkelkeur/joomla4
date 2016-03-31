@@ -15,7 +15,7 @@ class WebwinkelKeurAPI {
         $this->api_key = (string) $api_key;
     }
 
-    public function invite($order_id, $email, $delay, $lang, $customername, $noremail = false) {
+    public function invite($order_id, $email, $delay, $lang, $customername, $client, $noremail = false) {
         $parameters = array(
             'id'        => $this->shop_id,
             'password'  => $this->api_key,
@@ -24,7 +24,7 @@ class WebwinkelKeurAPI {
             'delay'     => $delay,
             'lang'      => str_replace('-', '_', $lang),
             'customername' => $customername,
-            'client'    => 'virtuemart',
+            'client'    => $client,
         );
 
         if($noremail)

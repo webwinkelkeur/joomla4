@@ -12,6 +12,14 @@ CREATE TABLE IF NOT EXISTS `#__webwinkelkeur_virtuemart_order` (
     PRIMARY KEY (`virtuemart_order_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
+CREATE TABLE IF NOT EXISTS `#__webwinkelkeur_hikashop_order` (
+    `hikashop_order_id` INT NOT NULL,
+    `success` TINYINT(1) NOT NULL,
+    `tries` INT NOT NULL,
+    `time` BIGINT NOT NULL,
+    PRIMARY KEY (`hikashop_order_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
 DROP TABLE IF EXISTS `#__webwinkelkeur_invite_error`;
 
 CREATE TABLE `#__webwinkelkeur_invite_error` (

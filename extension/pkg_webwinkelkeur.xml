@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <extension type="package" version="2.5.0">
     <name>WebwinkelKeur</name>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
     <packagename>webwinkelkeur</packagename>
-    <packager>Albert Peschar</packager>
+    <packager>Albert Peschar en WebwinkelKeur</packager>
     <packagerurl>https://peschar.net</packagerurl>
-    <creationDate>March 2014</creationDate>
-    <author>Albert Peschar</author>
+    <creationDate>March 2016</creationDate>
+    <author>Albert Peschar en WebwinkelKeur</author>
     <authorEmail>albert@peschar.net</authorEmail>
     <authorUrl>https://peschar.net</authorUrl>
-    <copyright>(C) 2014 Albert Peschar</copyright>
+    <copyright>(C) 2016 Albert Peschar</copyright>
     <license>GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html</license>
-    <description>De Joomla extensie zorgt voor een eenvoudige integratie van het WebwinkelKeur binnen jouw webwinkel. Hiermee is het heel eenvoudig om de innovatieve WebwinkelKeur Sidebar in jouw Joomla website of VirtueMart webwinkel te integreren. Wanneer je VirtueMart gebruikt, kunnen er bovendien automatisch uitnodigingen naar je klanten worden gestuurd.</description>
+    <description>De Joomla extensie zorgt voor een eenvoudige integratie van het WebwinkelKeur binnen jouw webwinkel. Hiermee is het heel eenvoudig om de innovatieve WebwinkelKeur Sidebar in jouw Joomla website te integreren. Wanneer je VirtueMart of HikaShop gebruikt, kunnen er bovendien automatisch uitnodigingen naar je klanten worden gestuurd.</description>
     <files folder="packages">
         <file type="plugin" id="webwinkelkeur" group="system">plg_sys_webwinkelkeur.zip</file>
         <file type="component" id="com_webwinkelkeur">com_webwinkelkeur.zip</file>
