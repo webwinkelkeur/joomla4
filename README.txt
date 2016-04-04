@@ -5,10 +5,11 @@ Deze module integreert de WebwinkelKeur sidebar in uw Joomla website en/of
 VirtueMart webshop. De module kan eenvoudig worden geïnstalleerd. Gebruik
 daarvoor de onderstaande installatieinstructies.
 
-De module is getest met 
-Joomla versie 2.5 en 3.2 en 3.4.8
-VirtueMart versie 2.
-HikaShop Business: 2.6.1
+De module is getest met:
+
+- Joomla versie 2.5, 3.2 en 3.4.8
+- VirtueMart versie 2
+- HikaShop Business: 2.6.1
 
 (C) 2016 Albert Peschar <albert@peschar.net>
 
