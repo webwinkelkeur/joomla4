@@ -92,8 +92,7 @@ class PlgSystemWebwinkelKeur extends JPlugin {
                 ho.order_id,
                 ho.order_number,
                 hu.user_email,
-                CONCAT(ha.address_firstname, ' ', ha.address_lastname) as customername,
-                hz.zone_code_3 as order_language
+                CONCAT(ha.address_firstname, ' ', ha.address_lastname) as customername
             FROM `#__hikashop_order` ho
             INNER JOIN `#__hikashop_user` hu ON
                 ho.order_user_id = hu.user_id
@@ -126,7 +125,7 @@ class PlgSystemWebwinkelKeur extends JPlugin {
             $error = null;
             $url = null;
             try {
-                $api->invite($order['order_number'], $order['user_email'], $delay, $order['order_language'], $order['customername'], 'hikashop', $noremail);
+                $api->invite($order['order_number'], $order['user_email'], $delay, null, $order['customername'], 'hikashop', $noremail);
             } catch(WebwinkelKeurAPIAlreadySentError $e) {
             } catch(WebwinkelKeurAPIError $e) {
                 $error = $e->getMessage();
