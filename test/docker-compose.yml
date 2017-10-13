@@ -1,0 +1,9 @@
+version: '3'
+
+services:
+    db:
+        build: ./mysql
+    www:
+        build: ./virtuemart
+        links:
+            - db

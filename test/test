@@ -1,0 +1,16 @@
+#!/bin/bash
+
+set -euo pipefail
+cd "$(dirname "$0")"
+
+ip() {
+    docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' \
+        ${COMPOSE_PROJECT_NAME}_$1_1
+}
+
+export COMPOSE_PROJECT_NAME=test`pwgen -s0A 16 1`
+trap 'docker-compose down &>/dev/null &' EXIT
+
+docker-compose up -d
+
+ipython3 --pdb test.py `ip www`
