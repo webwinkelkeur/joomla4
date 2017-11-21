@@ -65,7 +65,6 @@ $config = $this->config;
                         Nee, geen uitnodigingen versturen.
                     </label>
                 </fieldset>
-                <p class="description">Deze functionaliteit is alleen beschikbaar voor Plus-leden.</p>
             </td>
         </tr> 
         <tr valign="top">
