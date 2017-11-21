@@ -170,8 +170,7 @@ class PlgSystemWebwinkelKeur extends JPlugin {
         $config = $this->getConfig();
 
         // virtuemart enabled?
-        $db->setQuery("SELECT enabled FROM #__extensions WHERE element = 'com_virtuemart'");
-        $is_enabled = $db->loadResult();
+        list ($is_enabled, $virtuemart_manifest) = $this->getExtensionInfo('com_virtuemart', $db);
         if (!$is_enabled) {
             return;
         }
@@ -214,6 +213,7 @@ class PlgSystemWebwinkelKeur extends JPlugin {
             return;
 
         // process
+        list (, $wwk_manifest) = $this->getExtensionInfo('webwinkelkeur', $db);
         require_once dirname(__FILE__) . '/api.php';
         $api = new WebwinkelKeurAPI($config['wwk_shop_id'], $config['wwk_api_key']);
         foreach($orders as $order) {
@@ -225,11 +225,15 @@ class PlgSystemWebwinkelKeur extends JPlugin {
                 'delay'     => @$config['invite_delay'],
                 'language'  => $order['order_language'],
                 'client'    => 'virtuemart',
-                'customer_name' => $order['customer_name']
+                'customer_name' => $order['customer_name'],
+                'platform_version' => 'j-' . JVERSION . '-vm-' . $virtuemart_manifest->version,
+                'plugin_version' => $wwk_manifest->version
             );
+
             if (@$config['invite'] == 2) {
                 $data['max_invitations_per_email'] = 1;
             }
+
             try {
                 $api->invite($data);
             } catch(WebwinkelKeurAPIAlreadySentError $e) {
@@ -265,5 +269,12 @@ class PlgSystemWebwinkelKeur extends JPlugin {
                 $app->enqueueMessage("De WebwinkelKeur uitnodiging voor order {$order['order_number']} kon niet worden verstuurd. -- $error", 'error');
             }
         }
+    }
+
+    private function getExtensionInfo($extension_name, $db) {
+        $db->setQuery("SELECT enabled, manifest_cache FROM #__extensions WHERE element = '$extension_name'");
+        list ($is_enabled, $manifest_json) = $db->loadRow();
+        $manifest = json_decode($manifest_json);
+        return array($is_enabled, $manifest);
     }
 }
