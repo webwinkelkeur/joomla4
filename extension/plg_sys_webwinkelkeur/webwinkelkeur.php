@@ -234,6 +234,19 @@ class PlgSystemWebwinkelKeur extends JPlugin {
                 $data['max_invitations_per_email'] = 1;
             }
 
+            $order_data = $this->getVirtuemarketOrderData($order, $db);
+            $data['order_data'] = json_encode($order_data);
+            $phones = array(
+                $order_data['invoice_address']['phone_1'],
+                $order_data['invoice_address']['phone_2']
+            );
+            if (isset ($order_data['delivery_address'])) {
+                $phones[] = $order_data['delivery_address']['phone_1'];
+                $phones[] = $order_data['delivery_address']['phone_2'];
+            }
+
+            $data['phone_numbers'] = array_unique(array_filter($phones));
+
             try {
                 $api->invite($data);
             } catch(WebwinkelKeurAPIAlreadySentError $e) {
@@ -277,4 +290,67 @@ class PlgSystemWebwinkelKeur extends JPlugin {
         $manifest = json_decode($manifest_json);
         return array($is_enabled, $manifest);
     }
+
+    private function getVirtuemarketOrderData($order, $db) {
+        $order_query = "SELECT * FROM `#__virtuemart_orders` WHERE `virtuemart_order_id` = "
+            . $order['virtuemart_order_id'];
+        $order_info = $db->setQuery($order_query)->loadAssoc();
+        $lines_query = "SELECT * FROM `#__virtuemart_order_items` WHERE `virtuemart_order_id` = "
+            . $order['virtuemart_order_id'];
+        $order_info['order_lines'] = $db->setQuery($lines_query)->loadAssocList();
+
+        $product_ids = join(',', array_map(function ($line) {
+            return $line['virtuemart_product_id'];
+        }, $order_info['order_lines']));
+        $products_query = "SELECT * FROM `#__virtuemart_products` WHERE `virtuemart_product_id` IN ($product_ids)";
+        $products = [];
+        foreach ($db->setQuery($products_query)->loadAssocList() as $product) {
+            $product['images'] = [];
+            $products[$product['virtuemart_product_id']] = $product;
+        }
+
+        $product_ids = join(',', array_keys($products));
+        $images_query = "
+          SELECT 
+            `p`.`virtuemart_product_id`, 
+            `m`.`file_url`
+          FROM `#__virtuemart_products` AS `p`
+            LEFT JOIN `#__virtuemart_product_medias` AS `pm`
+              ON `p`.`virtuemart_product_id` = `pm`.`virtuemart_product_id`
+                  OR `p`.`product_parent_id` = `pm`.`virtuemart_product_id`
+            LEFT JOIN `#__virtuemart_medias` AS `m`
+              ON `pm`.`virtuemart_media_id` = `m`.`virtuemart_media_id`
+          WHERE `p`.`virtuemart_product_id` IN ($product_ids)";
+        foreach ($db->setQuery($images_query)->loadAssocList() as $image) {
+            $products[$image['virtuemart_product_id']]['images'][] =
+                'http' . (isset ($_SERVER['HTTPS']) ? 's' : '') . '://'
+                . $_SERVER['HTTP_HOST'] . '/' . $image['file_url'];
+        }
+
+        $customer_query = "SELECT * FROM `#__users` WHERE `id` = " . $order_info['virtuemart_user_id'];
+        $customer = $db->setQuery($customer_query)->loadAssoc();
+        if (!empty ($customer)) {
+            unset ($customer['password']);
+        }
+
+        $order_data = [
+            'order' => $order_info,
+            'products' => array_values($products),
+            'customer' => $customer
+        ];
+
+        $addresses_query = "SELECT * FROM `#__virtuemart_order_userinfos` WHERE `virtuemart_order_id` = "
+            . $order['virtuemart_order_id'];
+        foreach ($db->setQuery($addresses_query)->loadAssocList() as $address) {
+            if ($address['address_type'] == 'BT') {
+                $order_data['invoice_address'] = $address;
+            } else {
+                $order_data['delivery_address'] = $address;
+            }
+        }
+
+        return $order_data;
+
+    }
+
 }
