@@ -183,9 +183,6 @@ class PlgSystemWebwinkelKeur extends JPlugin {
         )
             return;
 
-        $delay = (int) @$config['invite_delay'];
-        $noremail = @$config['invite'] == 2;
-
         // find orders
         $db->setQuery("
             SELECT
@@ -193,7 +190,7 @@ class PlgSystemWebwinkelKeur extends JPlugin {
                 vo.order_number,
                 vo.order_language,
                 vou.email,
-                CONCAT(vou.first_name, ' ', vou.last_name) as customername
+                CONCAT(vou.first_name, ' ', vou.last_name) as customer_name
             FROM `#__virtuemart_orders` vo
             INNER JOIN `#__virtuemart_order_userinfos` vou ON
                 vou.virtuemart_order_id = vo.virtuemart_order_id
@@ -218,12 +215,23 @@ class PlgSystemWebwinkelKeur extends JPlugin {
 
         // process
         require_once dirname(__FILE__) . '/api.php';
+        $api = new WebwinkelKeurAPI($config['wwk_shop_id'], $config['wwk_api_key']);
         foreach($orders as $order) {
-            $api = new WebwinkelKeurAPI($config['wwk_shop_id'], $config['wwk_api_key']);
             $error = null;
             $url = null;
+            $data = array(
+                'order'     => $order['order_number'],
+                'email'     => $order['email'],
+                'delay'     => @$config['invite_delay'],
+                'language'  => $order['order_language'],
+                'client'    => 'virtuemart',
+                'customer_name' => $order['customer_name']
+            );
+            if (@$config['invite'] == 2) {
+                $data['max_invitations_per_email'] = 1;
+            }
             try {
-                $api->invite($order['order_number'], $order['email'], $delay, $order['order_language'], $order['customername'], 'virtuemart', $noremail);
+                $api->invite($data);
             } catch(WebwinkelKeurAPIAlreadySentError $e) {
             } catch(WebwinkelKeurAPIError $e) {
                 $error = $e->getMessage();
