@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <extension type="component" version="2.5.0" method="upgrade">
     <name>WebwinkelKeur</name>
-    <version>1.0.1</version>
-    <creationDate>March 2016</creationDate>
+    <version>1.1.0</version>
+    <creationDate>November 2017</creationDate>
     <author>Albert Peschar en WebwinkelKeur</author>
     <authorEmail>albert@peschar.net</authorEmail>
     <authorUrl>https://peschar.net</authorUrl>
-    <copyright>(C) 2016 Albert Peschar en WebwinkelKeur</copyright>
+    <copyright>(C) 2017 Albert Peschar en WebwinkelKeur</copyright>
     <license>GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html</license>
     <install>
         <sql>
