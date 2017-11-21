@@ -83,9 +83,6 @@ class PlgSystemWebwinkelKeur extends JPlugin {
         )
             return;
 
-        $delay = (int) @$config['invite_delay'];
-        $noremail = @$config['invite'] == 2;
-
         // find orders
         $db->setQuery("
             SELECT
@@ -124,8 +121,20 @@ class PlgSystemWebwinkelKeur extends JPlugin {
             $api = new WebwinkelKeurAPI($config['wwk_shop_id'], $config['wwk_api_key']);
             $error = null;
             $url = null;
+            $data = array(
+                'order'     => $order['order_number'],
+                'email'     => $order['user_email'],
+                'delay'     => @$config['invite_delay'],
+                'language'  => null,
+                'client'    => 'hikashop',
+                'customer_name' => $order['customername']
+            );
+            if (@$config['invite'] == 2) {
+                $data['max_invitations_per_email'] = 1;
+            }
+
             try {
-                $api->invite($order['order_number'], $order['user_email'], $delay, null, $order['customername'], 'hikashop', $noremail);
+                $api->invite($data);
             } catch(WebwinkelKeurAPIAlreadySentError $e) {
             } catch(WebwinkelKeurAPIError $e) {
                 $error = $e->getMessage();
