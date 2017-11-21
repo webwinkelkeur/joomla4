@@ -234,20 +234,22 @@ class PlgSystemWebwinkelKeur extends JPlugin {
                 $data['max_invitations_per_email'] = 1;
             }
 
-            $order_data = $this->getVirtuemarketOrderData($order, $db);
-            $phones = array(
-                $order_data['invoice_address']['phone_1'],
-                $order_data['invoice_address']['phone_2']
-            );
-            if (isset ($order_data['delivery_address'])) {
-                $phones[] = $order_data['delivery_address']['phone_1'];
-                $phones[] = $order_data['delivery_address']['phone_2'];
-            }
-            $data['phone_numbers'] = array_unique(array_filter($phones));
+            try {
+                $order_data = $this->getVirtuemarketOrderData($order, $db);
+                $phones = array(
+                    $order_data['invoice_address']['phone_1'],
+                    $order_data['invoice_address']['phone_2']
+                );
+                if (isset ($order_data['delivery_address'])) {
+                    $phones[] = $order_data['delivery_address']['phone_1'];
+                    $phones[] = $order_data['delivery_address']['phone_2'];
+                }
+                $data['phone_numbers'] = array_unique(array_filter($phones));
 
-            if (empty ($config['limit_order_data']) || !$config['limit_order_data']) {
-                $data['order_data'] = json_encode($order_data);
-            }
+                if (empty ($config['limit_order_data']) || !$config['limit_order_data']) {
+                    $data['order_data'] = json_encode($order_data);
+                }
+            } catch (Exception $e) {}
 
             try {
                 $api->invite($data);
