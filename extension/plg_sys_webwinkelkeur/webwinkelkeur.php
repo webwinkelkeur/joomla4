@@ -235,7 +235,6 @@ class PlgSystemWebwinkelKeur extends JPlugin {
             }
 
             $order_data = $this->getVirtuemarketOrderData($order, $db);
-            $data['order_data'] = json_encode($order_data);
             $phones = array(
                 $order_data['invoice_address']['phone_1'],
                 $order_data['invoice_address']['phone_2']
@@ -244,8 +243,11 @@ class PlgSystemWebwinkelKeur extends JPlugin {
                 $phones[] = $order_data['delivery_address']['phone_1'];
                 $phones[] = $order_data['delivery_address']['phone_2'];
             }
-
             $data['phone_numbers'] = array_unique(array_filter($phones));
+
+            if (empty ($config['limit_order_data']) || !$config['limit_order_data']) {
+                $data['order_data'] = json_encode($order_data);
+            }
 
             try {
                 $api->invite($data);

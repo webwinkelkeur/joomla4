@@ -66,7 +66,21 @@ $config = $this->config;
                     </label>
                 </fieldset>
             </td>
-        </tr> 
+        </tr>
+        <tr valign="top">
+            <th scope="row"></th>
+            <td>
+                <fieldset>
+                    <label>
+                        <input type="checkbox" name="webwinkelkeur_limit_order_data" value="1" <?php if(@$config['limit_order_data']) echo 'checked';?> />
+                        Do not send order information to WebwinkelKeur
+                    </label>
+                    <p class="description">
+                        Please note: not all WebwinkelKeur functionality will be available if you check this option!
+                    </p>
+                </fieldset>
+            </td>
+        </tr>
         <tr valign="top">
             <th scope="row"><label for="webwinkelkeur-invite-delay">Wachttijd voor uitnodiging</label></th>
             <td><input name="webwinkelkeur_invite_delay" type="text" id="webwinkelkeur-invite-delay" value="<?php echo htmlspecialchars(@$config['invite_delay'], ENT_QUOTES, 'UTF-8'); ?>" class="small-text" />

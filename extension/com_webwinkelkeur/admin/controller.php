@@ -14,6 +14,7 @@ class WebwinkelKeurController extends JControllerLegacy {
         'wwk_api_key',
         'invite',
         'invite_delay',
+        'limit_order_data',
         'javascript',
     );
     
