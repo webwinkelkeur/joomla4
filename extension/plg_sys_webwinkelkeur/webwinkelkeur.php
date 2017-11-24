@@ -6,6 +6,9 @@
 
 defined('_JEXEC') or die('Restricted access');
 
+require_once dirname(__FILE__) . '/WebwinkelKeurShopPlatform.php';
+require_once dirname(__FILE__) . '/WebwinkelKeurVirtuemartPlatform.php';
+
 class PlgSystemWebwinkelKeur extends JPlugin {
     private $config;
 
@@ -17,9 +20,10 @@ class PlgSystemWebwinkelKeur extends JPlugin {
 
     public function onAfterInitialise() {
         $app = JFactory::getApplication();
+        $db = JFactory::getDBO();
         if(!$app->isSite()) {
             $this->sendHikashopInvites();
-            $this->sendVirtuemartInvites();
+            $this->sendPlatformInvites(new WebwinkelKeurVirtuemartPlatform($db));
         }
     }
 
@@ -169,17 +173,15 @@ class PlgSystemWebwinkelKeur extends JPlugin {
             }
         }
     }
-    
-    /*
-    * Virtuemart functions
-    */
-    private function sendVirtuemartInvites() {
+
+
+    private function sendPlatformInvites(WebwinkelKeurShopPlatform $platform) {
         $app = JFactory::getApplication();
         $db = JFactory::getDBO();
         $config = $this->getConfig();
 
         // virtuemart enabled?
-        list ($is_enabled, $virtuemart_manifest) = $this->getExtensionInfo('com_virtuemart', $db);
+        list ($is_enabled, $platform_manifest) = $this->getExtensionInfo($platform->getExtensionName(), $db);
         if (!$is_enabled) {
             return;
         }
@@ -192,32 +194,7 @@ class PlgSystemWebwinkelKeur extends JPlugin {
             return;
 
         // find orders
-        $db->setQuery("
-            SELECT
-                vo.virtuemart_order_id,
-                vo.order_number,
-                vo.order_language,
-                vou.email,
-                CONCAT(vou.first_name, ' ', vou.last_name) as customer_name
-            FROM `#__virtuemart_orders` vo
-            INNER JOIN `#__virtuemart_order_userinfos` vou ON
-                vou.virtuemart_order_id = vo.virtuemart_order_id
-                AND vou.address_type = 'BT'
-            LEFT JOIN `#__webwinkelkeur_virtuemart_order` wvo ON
-                wvo.virtuemart_order_id = vo.virtuemart_order_id
-            WHERE
-                (
-                    wvo.virtuemart_order_id IS NULL
-                    OR (
-                        wvo.success = 0
-                        AND wvo.tries <= 5
-                        AND wvo.time < " . (time() - 1800) . "
-                    )
-                )
-                AND vou.email LIKE '%@%'
-                AND vo.order_status = 'S'
-        ");
-        $orders = $db->loadAssocList();
+        $orders = $platform->getOrdersToInvite();
         if(!$orders)
             return;
 
@@ -229,37 +206,28 @@ class PlgSystemWebwinkelKeur extends JPlugin {
             $error = null;
             $url = null;
             $data = array(
-                'order'     => $order['order_number'],
-                'email'     => $order['email'],
+                'order'     => $platform->getOrderId($order),
+                'email'     => $platform->getOrderEmail($order),
                 'delay'     => @$config['invite_delay'],
-                'language'  => $order['order_language'],
-                'client'    => 'virtuemart',
-                'customer_name' => $order['customer_name'],
-                'platform_version' => 'j-' . JVERSION . '-vm-' . $virtuemart_manifest->version,
+                'language'  => $platform->getOrderLanguage($order),
+                'client'    => $platform->getClientName(),
+                'customer_name' => $platform->getOrderCustomerName($order),
+                'phone_numbers' => $platform->getOrderPhones($order),
+                'platform_version' => join('-', array(
+                    'j',
+                    JVERSION,
+                    $platform->getPlatformAbbreviation(),
+                    $platform_manifest->version
+                )),
                 'plugin_version' => $wwk_manifest->version
             );
 
             if (@$config['invite'] == 2) {
                 $data['max_invitations_per_email'] = 1;
             }
-
-            try {
-                $order_data = $this->getVirtuemarketOrderData($order, $db);
-                $phones = array(
-                    $order_data['invoice_address']['phone_1'],
-                    $order_data['invoice_address']['phone_2']
-                );
-                if (isset ($order_data['delivery_address'])) {
-                    $phones[] = $order_data['delivery_address']['phone_1'];
-                    $phones[] = $order_data['delivery_address']['phone_2'];
-                }
-                $data['phone_numbers'] = array_unique(array_filter($phones));
-
-                if (empty ($config['limit_order_data']) || !$config['limit_order_data']) {
-                    $data['order_data'] = json_encode($order_data);
-                }
-            } catch (Exception $e) {}
-
+            if (empty ($config['limit_order_data']) || !$config['limit_order_data']) {
+                $data['order_data'] = json_encode($platform->getOrderData($order));
+            }
             try {
                 $api->invite($data);
             } catch(WebwinkelKeurAPIAlreadySentError $e) {
@@ -268,31 +236,19 @@ class PlgSystemWebwinkelKeur extends JPlugin {
                 $url = $e->getURL();
             }
 
-            $now = time();
 
-            $db->setQuery("
-                INSERT INTO `#__webwinkelkeur_virtuemart_order` SET
-                    `virtuemart_order_id` = " . (int) $order['virtuemart_order_id'] . ",
-                    `success` = " . ($error ? '0' : '1') . ",
-                    `tries` = 1,
-                    `time` = " . $now . "
-                ON DUPLICATE KEY UPDATE
-                    `success` = IF(`success` = 1, 1, " . ($error ? '0' : '1') . "),
-                    `tries` = `tries` + 1,
-                    `time` = " . $now . "
-            ");
-            $db->query();
+            $platform->updateOrderInvitesSend($order, $error);
 
             if($error) {
                 $db->setQuery("
                     INSERT INTO `#__webwinkelkeur_invite_error` SET
                         `url` = " . $db->quote($url) . ",
                         `response` = " . $db->quote($error) . ",
-                        `time` = " . $now . ",
+                        `time` = " . time() . ",
                         `reported` = 0
                 ");
                 $db->query();
-                $app->enqueueMessage("De WebwinkelKeur uitnodiging voor order {$order['order_number']} kon niet worden verstuurd. -- $error", 'error');
+                $app->enqueueMessage("De WebwinkelKeur uitnodiging voor order {$platform->getOrderId($order)} kon niet worden verstuurd. -- $error", 'error');
             }
         }
     }
@@ -303,67 +259,4 @@ class PlgSystemWebwinkelKeur extends JPlugin {
         $manifest = json_decode($manifest_json);
         return array($is_enabled, $manifest);
     }
-
-    private function getVirtuemarketOrderData($order, $db) {
-        $order_query = "SELECT * FROM `#__virtuemart_orders` WHERE `virtuemart_order_id` = "
-            . $order['virtuemart_order_id'];
-        $order_info = $db->setQuery($order_query)->loadAssoc();
-        $lines_query = "SELECT * FROM `#__virtuemart_order_items` WHERE `virtuemart_order_id` = "
-            . $order['virtuemart_order_id'];
-        $order_info['order_lines'] = $db->setQuery($lines_query)->loadAssocList();
-
-        $product_ids = join(',', array_map(function ($line) {
-            return $line['virtuemart_product_id'];
-        }, $order_info['order_lines']));
-        $products_query = "SELECT * FROM `#__virtuemart_products` WHERE `virtuemart_product_id` IN ($product_ids)";
-        $products = [];
-        foreach ($db->setQuery($products_query)->loadAssocList() as $product) {
-            $product['images'] = [];
-            $products[$product['virtuemart_product_id']] = $product;
-        }
-
-        $product_ids = join(',', array_keys($products));
-        $images_query = "
-          SELECT 
-            `p`.`virtuemart_product_id`, 
-            `m`.`file_url`
-          FROM `#__virtuemart_products` AS `p`
-            LEFT JOIN `#__virtuemart_product_medias` AS `pm`
-              ON `p`.`virtuemart_product_id` = `pm`.`virtuemart_product_id`
-                  OR `p`.`product_parent_id` = `pm`.`virtuemart_product_id`
-            LEFT JOIN `#__virtuemart_medias` AS `m`
-              ON `pm`.`virtuemart_media_id` = `m`.`virtuemart_media_id`
-          WHERE `p`.`virtuemart_product_id` IN ($product_ids)";
-        foreach ($db->setQuery($images_query)->loadAssocList() as $image) {
-            $products[$image['virtuemart_product_id']]['images'][] =
-                'http' . (isset ($_SERVER['HTTPS']) ? 's' : '') . '://'
-                . $_SERVER['HTTP_HOST'] . '/' . $image['file_url'];
-        }
-
-        $customer_query = "SELECT * FROM `#__users` WHERE `id` = " . $order_info['virtuemart_user_id'];
-        $customer = $db->setQuery($customer_query)->loadAssoc();
-        if (!empty ($customer)) {
-            unset ($customer['password']);
-        }
-
-        $order_data = [
-            'order' => $order_info,
-            'products' => array_values($products),
-            'customer' => $customer
-        ];
-
-        $addresses_query = "SELECT * FROM `#__virtuemart_order_userinfos` WHERE `virtuemart_order_id` = "
-            . $order['virtuemart_order_id'];
-        foreach ($db->setQuery($addresses_query)->loadAssocList() as $address) {
-            if ($address['address_type'] == 'BT') {
-                $order_data['invoice_address'] = $address;
-            } else {
-                $order_data['delivery_address'] = $address;
-            }
-        }
-
-        return $order_data;
-
-    }
-
 }
