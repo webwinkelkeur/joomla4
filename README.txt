@@ -8,7 +8,7 @@ daarvoor de onderstaande installatieinstructies.
 De module is getest met:
 
 - Joomla versie 2.5, 3.2, 3.4.8, 3.8.2
-- VirtueMart versie 2 en 3.2.4
+- VirtueMart versie 2 en 3.2.6
 - HikaShop Business: 2.6.1
 
 (C) 2016 Albert Peschar <albert@peschar.net>

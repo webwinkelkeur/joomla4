@@ -1,17 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <extension type="plugin" version="2.5.0" group="system" method="upgrade">
     <name>WebwinkelKeur</name>
-    <version>1.0.1</version>
-    <creationDate>March 2016</creationDate>
+    <version>1.1.0</version>
+    <creationDate>November 2016</creationDate>
     <author>Albert Peschar en WebwinkelKeur</author>
     <authorEmail>albert@peschar.net</authorEmail>
     <authorUrl>https://peschar.net</authorUrl>
-    <copyright>(C) 2016 Albert Peschar and WebwinkelKeur</copyright>
+    <copyright>(C) 2017 Albert Peschar and WebwinkelKeur</copyright>
     <license>GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html</license>
     <files>
         <filename plugin="webwinkelkeur">webwinkelkeur.php</filename>
         <filename plugin="webwinkelkeur">sidebar.php</filename>
-        <filename plugin="webwinkelkeur">URLRetriever.php</filename>
         <filename plugin="webwinkelkeur">api.php</filename>
+        <filename plugin="webwinkelkeur">WebwinkelKeurShopPlatform.php</filename>
+        <filename plugin="webwinkelkeur">WebwinkelKeurVirtuemartPlatform.php</filename>
     </files>
 </extension>
