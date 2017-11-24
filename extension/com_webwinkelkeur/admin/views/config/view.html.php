@@ -7,6 +7,9 @@
 defined('_JEXEC') or die('Restricted access');
  
 jimport('joomla.application.component.view');
+if (!class_exists('JViewLegacy')) {
+    class_alias('JView', 'JViewLegacy');
+}
 
 class WebwinkelKeurViewConfig extends JViewLegacy {
     function display($tpl = null) {

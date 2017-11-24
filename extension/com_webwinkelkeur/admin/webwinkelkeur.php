@@ -11,6 +11,9 @@ $doc->addStyleDeclaration('.icon-48-webwinkelkeur { background-image: url(../med
 $doc->addStyleSheet('components/com_webwinkelkeur/webwinkelkeur.css');
  
 jimport('joomla.application.component.controller');
+if (!class_exists('JControllerLegacy')) {
+    class_alias('JController', 'JControllerLegacy');
+}
  
 $controller = JControllerLegacy::getInstance('WebwinkelKeur');
  
