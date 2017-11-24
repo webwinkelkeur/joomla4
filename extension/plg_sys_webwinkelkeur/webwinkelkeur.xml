@@ -14,5 +14,6 @@
         <filename plugin="webwinkelkeur">api.php</filename>
         <filename plugin="webwinkelkeur">WebwinkelKeurShopPlatform.php</filename>
         <filename plugin="webwinkelkeur">WebwinkelKeurVirtuemartPlatform.php</filename>
+        <filename plugin="webwinkelkeur">WebwinkelKeurHikaShopPlatform.php</filename>
     </files>
 </extension>
