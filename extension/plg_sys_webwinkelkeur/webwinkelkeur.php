@@ -92,41 +92,47 @@ class PlgSystemWebwinkelKeur extends JPlugin {
         foreach($orders as $order) {
             $error = null;
             $url = null;
-            $data = array(
-                'order'     => $platform->getOrderId($order),
-                'email'     => $platform->getOrderEmail($order),
-                'delay'     => @$config['invite_delay'],
-                'language'  => $platform->getOrderLanguage($order),
-                'client'    => $platform->getClientName(),
-                'customer_name' => $platform->getOrderCustomerName($order),
-                'phone_numbers' => $platform->getOrderPhones($order),
-                'platform_version' => join('-', array(
-                    'j',
-                    JVERSION,
-                    $platform->getPlatformAbbreviation(),
-                    $platform_manifest->version
-                )),
-                'plugin_version' => $wwk_manifest->version
-            );
-
-            if (@$config['invite'] == 2) {
-                $data['max_invitations_per_email'] = 1;
-            }
-            if (empty ($config['limit_order_data']) || !$config['limit_order_data']) {
-                $data['order_data'] = json_encode($platform->getOrderData($order));
-            }
-
 
             try {
-                $api->invite($data);
-            } catch(WebwinkelKeurAPIAlreadySentError $e) {
-            } catch(WebwinkelKeurAPIError $e) {
+                $data = array(
+                    'order'     => $platform->getOrderId($order),
+                    'email'     => $platform->getOrderEmail($order),
+                    'delay'     => @$config['invite_delay'],
+                    'language'  => $platform->getOrderLanguage($order),
+                    'client'    => $platform->getClientName(),
+                    'customer_name' => $platform->getOrderCustomerName($order),
+                    'phone_numbers' => $platform->getOrderPhones($order),
+                    'platform_version' => join('-', array(
+                        'j',
+                        JVERSION,
+                        $platform->getPlatformAbbreviation(),
+                        $platform_manifest->version
+                    )),
+                    'plugin_version' => $wwk_manifest->version
+                );
+
+                if (@$config['invite'] == 2) {
+                    $data['max_invitations_per_email'] = 1;
+                }
+                if (empty ($config['limit_order_data']) || !$config['limit_order_data']) {
+                    $data['order_data'] = json_encode($platform->getOrderData($order));
+                }
+
+
+                try {
+                    $api->invite($data);
+                } catch(WebwinkelKeurAPIAlreadySentError $e) {
+                } catch(WebwinkelKeurAPIError $e) {
+                    $error = $e->getMessage();
+                    $url = $e->getURL();
+                }
+
+                $platform->updateOrderInvitesSend($order, $error);
+
+            } catch (Exception $e) {
                 $error = $e->getMessage();
-                $url = $e->getURL();
+                $url = '';
             }
-
-
-            $platform->updateOrderInvitesSend($order, $error);
 
             if($error) {
                 $db->setQuery("
