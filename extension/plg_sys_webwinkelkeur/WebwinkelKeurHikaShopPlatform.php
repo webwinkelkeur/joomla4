@@ -1,6 +1,7 @@
 <?php
 
 require_once dirname(__FILE__) . '/WebwinkelKeurShopPlatform.php';
+include_once rtrim(JPATH_ADMINISTRATOR,DS) . DS . 'components' . DS . 'com_hikashop' . DS .'helpers' .DS .'helper.php';
 class WebwinkelKeurHikaShopPlatform implements WebwinkelKeurShopPlatform {
 
     /**
@@ -9,8 +10,14 @@ class WebwinkelKeurHikaShopPlatform implements WebwinkelKeurShopPlatform {
      */
     private $db;
 
+    private $upload_url;
+
     public function __construct($db) {
         $this->db = $db;
+        $config = hikashop_config();
+        $upload_folder = ltrim(JPath::clean(html_entity_decode($config->get('uploadfolder'))), DS);
+        $upload_folder = rtrim($upload_folder, DS) . DS;
+        $this->upload_url = JURI::root() . str_replace(DS,'/',$upload_folder);
     }
 
     public function getExtensionName() {
@@ -95,7 +102,9 @@ class WebwinkelKeurHikaShopPlatform implements WebwinkelKeurShopPlatform {
         $products = array();
         foreach ($this->db->setQuery($order_lines_query)->loadAssocList() as $line) {
             $order_info['order_lines'][] = $line;
-            $products[] = $this->getProduct($line['product_id']);
+            if ($line['product_id']) {
+                $products[] = $this->getProduct($line['product_id']);
+            }
         }
 
         $customer_query  = "
@@ -142,6 +151,17 @@ class WebwinkelKeurHikaShopPlatform implements WebwinkelKeurShopPlatform {
         $result = $this->db->setQuery($query)->loadAssoc();
         if ($result && $result['product_parent_id']) {
             return $this->getProduct($result['product_parent_id']);
+        }
+        $images_query = "
+            SELECT `file_path` 
+            FROM `#__hikashop_file` 
+            WHERE 
+              `file_type` = 'product' 
+              AND `file_ref_id` = {$result['product_id']}
+        ";
+        $result['image_urls'] = array();
+        foreach ($this->db->setQuery($images_query)->loadColumn() as $image) {
+            $result['image_urls'][] = $this->upload_url . $image;
         }
         return $result;
     }
