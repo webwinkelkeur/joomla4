@@ -1,7 +1,7 @@
 <?php
 
 require_once dirname(__FILE__) . '/WebwinkelKeurShopPlatform.php';
-include_once rtrim(JPATH_ADMINISTRATOR,DS) . DS . 'components' . DS . 'com_hikashop' . DS .'helpers' .DS .'helper.php';
+include_once rtrim(JPATH_ADMINISTRATOR, DS) . DS . 'components' . DS . 'com_hikashop' . DS .'helpers' .DS .'helper.php';
 class WebwinkelKeurHikaShopPlatform implements WebwinkelKeurShopPlatform {
 
     /**
@@ -10,14 +10,16 @@ class WebwinkelKeurHikaShopPlatform implements WebwinkelKeurShopPlatform {
      */
     private $db;
 
-    private $upload_url;
+    private $upload_url = '';
 
     public function __construct($db) {
         $this->db = $db;
-        $config = hikashop_config();
-        $upload_folder = ltrim(JPath::clean(html_entity_decode($config->get('uploadfolder'))), DS);
-        $upload_folder = rtrim($upload_folder, DS) . DS;
-        $this->upload_url = JURI::root() . str_replace(DS,'/',$upload_folder);
+        if (function_exists('hikashop_config') && class_exists('JURI') && class_exists('JPath')) {
+            $config = hikashop_config();
+            $upload_folder = ltrim(JPath::clean(html_entity_decode($config->get('uploadfolder'))), DS);
+            $upload_folder = rtrim($upload_folder, DS) . DS;
+            $this->upload_url = JURI::root() . str_replace(DS,'/',$upload_folder);
+        }
     }
 
     public function getExtensionName() {
