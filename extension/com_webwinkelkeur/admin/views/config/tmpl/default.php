@@ -73,10 +73,11 @@ $config = $this->config;
                 <fieldset>
                     <label>
                         <input type="checkbox" name="webwinkelkeur_limit_order_data" value="1" <?php if(@$config['limit_order_data']) echo 'checked';?> />
-                        Do not send order information to WebwinkelKeur
+                        Stuur geen uitgebreide informatie over bestellingen naar WebwinkelKeur
                     </label>
                     <p class="description">
-                        Please note: not all WebwinkelKeur functionality will be available if you check this option!
+                        Standaard sturen we informatie over de klant en de bestelde producten mee bij het aanvragen van uitnodigingen, zodat we extra mogelijkheden kunnen bieden.<br />
+                        Als u hier een vinkje zet, gebeurt dat niet, en is niet alle WebwinkelKeur-functionaliteit beschikbaar.
                     </p>
                 </fieldset>
             </td>
