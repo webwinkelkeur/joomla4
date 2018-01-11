@@ -6,7 +6,7 @@ cd ..
 
 root=$PWD
 
-tmp=`mktemp -d -t virtuemart`
+tmp=`mktemp -d -t virtuemart.XXXXX`
 trap "rm -rf '$tmp'" EXIT
 mkdir $tmp/packages
 
