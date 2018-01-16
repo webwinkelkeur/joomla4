@@ -102,6 +102,7 @@ class PlgSystemWebwinkelKeur extends JPlugin {
                     'client'    => $platform->getClientName(),
                     'customer_name' => $platform->getOrderCustomerName($order),
                     'phone_numbers' => $platform->getOrderPhones($order),
+                    'order_total'   => $platform->getOrderTotal($order),
                     'platform_version' => join('-', array(
                         'j',
                         JVERSION,

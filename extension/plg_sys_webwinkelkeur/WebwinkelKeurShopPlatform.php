@@ -20,6 +20,8 @@ interface WebwinkelKeurShopPlatform {
 
     public function getOrderPhones($order);
 
+    public function getOrderTotal($order);
+
     public function getOrderData($order);
 
     public function updateOrderInvitesSend($order, $error);

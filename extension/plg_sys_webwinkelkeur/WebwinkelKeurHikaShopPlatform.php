@@ -1,7 +1,20 @@
 <?php
 
 require_once dirname(__FILE__) . '/WebwinkelKeurShopPlatform.php';
-include_once rtrim(JPATH_ADMINISTRATOR, DS) . DS . 'components' . DS . 'com_hikashop' . DS .'helpers' .DS .'helper.php';
+if (file_exists(
+        rtrim(JPATH_ADMINISTRATOR, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR
+        . 'components' . DIRECTORY_SEPARATOR
+        . 'com_hikashop' . DIRECTORY_SEPARATOR
+        .'helpers' .DIRECTORY_SEPARATOR
+        .'helper.php'
+)) {
+    include_once rtrim(JPATH_ADMINISTRATOR, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR
+        . 'components' . DIRECTORY_SEPARATOR
+        . 'com_hikashop' . DIRECTORY_SEPARATOR
+        .'helpers' .DIRECTORY_SEPARATOR
+        .'helper.php';
+}
+
 class WebwinkelKeurHikaShopPlatform implements WebwinkelKeurShopPlatform {
 
     /**
@@ -16,9 +29,9 @@ class WebwinkelKeurHikaShopPlatform implements WebwinkelKeurShopPlatform {
         $this->db = $db;
         if (function_exists('hikashop_config') && class_exists('JURI') && class_exists('JPath')) {
             $config = hikashop_config();
-            $upload_folder = ltrim(JPath::clean(html_entity_decode($config->get('uploadfolder'))), DS);
-            $upload_folder = rtrim($upload_folder, DS) . DS;
-            $this->upload_url = JURI::root() . str_replace(DS,'/',$upload_folder);
+            $upload_folder = ltrim(JPath::clean(html_entity_decode($config->get('uploadfolder'))), DIRECTORY_SEPARATOR);
+            $upload_folder = rtrim($upload_folder, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
+            $this->upload_url = JURI::root() . str_replace(DIRECTORY_SEPARATOR,'/',$upload_folder);
         }
     }
 
@@ -39,6 +52,7 @@ class WebwinkelKeurHikaShopPlatform implements WebwinkelKeurShopPlatform {
             SELECT
                 ho.order_id,
                 ho.order_number,
+                ho.order_full_price,
                 hu.user_email,
                 CONCAT(ha.address_firstname, ' ', ha.address_lastname) as customer_name
             FROM `#__hikashop_order` ho
@@ -72,6 +86,10 @@ class WebwinkelKeurHikaShopPlatform implements WebwinkelKeurShopPlatform {
         return $order['user_email'];
     }
 
+    public function getOrderTotal($order) {
+        return $order['order_full_price'];
+    }
+
     public function getOrderCustomerName($order) {
         return $order['customer_name'];
     }
@@ -87,7 +105,7 @@ class WebwinkelKeurHikaShopPlatform implements WebwinkelKeurShopPlatform {
                 $phones[] = $order_data[$address]['address_telephone2'];
             }
         }
-        return array_unique(array_filter($phones));
+        return array_values(array_unique(array_filter($phones)) );
     }
 
     public function getOrderData($order) {

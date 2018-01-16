@@ -31,6 +31,7 @@ class WebwinkelKeurVirtuemartPlatform implements WebwinkelKeurShopPlatform {
                 vo.virtuemart_order_id,
                 vo.order_number,
                 vo.order_language,
+                vo.order_total,
                 vou.email,
                 CONCAT(vou.first_name, ' ', vou.last_name) as customer_name
             FROM `#__virtuemart_orders` vo
@@ -80,6 +81,10 @@ class WebwinkelKeurVirtuemartPlatform implements WebwinkelKeurShopPlatform {
             $phones[] = $order_data['delivery_address']['phone_2'];
         }
         return array_unique(array_filter($phones));
+    }
+
+    public function getOrderTotal($order) {
+        return $order['order_total'];
     }
 
     public function getOrderData($order) {
