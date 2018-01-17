@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS `#__webwinkelkeur_virtuemart_order` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `#__webwinkelkeur_hikashop_order` (
-    `hikashop_order_id` INT NOT NULL,
+    `hikashop_order_id` INT UNSIGNED NOT NULL,
     `success` TINYINT(1) NOT NULL,
     `tries` INT NOT NULL,
     `time` BIGINT NOT NULL,
@@ -34,3 +34,29 @@ CREATE TABLE `#__webwinkelkeur_invite_error` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 UPDATE `#__extensions` SET `enabled` = 1 WHERE `type` = 'plugin' AND `element` = 'webwinkelkeur';
+
+DROP TABLE IF EXISTS `#__webwinkelkeur_hikashop_invites_start`;
+
+CREATE TABLE `#__webwinkelkeur_hikashop_invites_start` (
+    `start_id` INT UNSIGNED NOT NULL DEFAULT 0
+);
+
+INSERT INTO `#__webwinkelkeur_hikashop_invites_start`
+    SELECT COALESCE(MAX(`AUTO_INCREMENT`), 0)
+    FROM `information_schema`.`tables`
+    WHERE
+        `TABLE_SCHEMA` = DATABASE()
+        AND `TABLE_NAME` LIKE '%hikashop_order';
+
+DROP TABLE IF EXISTS `#__webwinkelkeur_virtuemart_invites_start`;
+
+CREATE TABLE `#__webwinkelkeur_virtuemart_invites_start` (
+  `start_id` INT UNSIGNED NOT NULL DEFAULT 0
+);
+
+INSERT INTO `#__webwinkelkeur_virtuemart_invites_start`
+  SELECT COALESCE(MAX(`AUTO_INCREMENT`), 0)
+  FROM `information_schema`.`tables`
+  WHERE
+    `TABLE_SCHEMA` = DATABASE()
+    AND `TABLE_NAME` LIKE '%virtuemart_orders';

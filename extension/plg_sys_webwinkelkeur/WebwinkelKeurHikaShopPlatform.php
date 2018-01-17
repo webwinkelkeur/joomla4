@@ -75,6 +75,7 @@ class WebwinkelKeurHikaShopPlatform implements WebwinkelKeurShopPlatform {
                 )
                 AND hu.user_email LIKE '%@%'
                 AND ho.order_status = 'shipped'
+                AND ho.order_id >= (SELECT start_id FROM `#__webwinkelkeur_hikashop_invites_start` LIMIT 1)
         ")->loadAssocList();
     }
 

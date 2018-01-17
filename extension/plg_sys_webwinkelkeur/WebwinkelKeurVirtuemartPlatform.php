@@ -51,6 +51,7 @@ class WebwinkelKeurVirtuemartPlatform implements WebwinkelKeurShopPlatform {
                 )
                 AND vou.email LIKE '%@%'
                 AND vo.order_status = 'S'
+                AND vo.virtuemart_order_id >= (SELECT start_id FROM `#__webwinkelkeur_virtuemart_invites_start` LIMIT 1)
         ")->loadAssocList();
     }
 
