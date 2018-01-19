@@ -48,6 +48,7 @@ class WebwinkelKeurHikaShopPlatform implements WebwinkelKeurShopPlatform {
     }
 
     public function getOrdersToInvite() {
+        $min_order_id = $this->getLastOrderBeforePluginId();
         return $this->db->setQuery("
             SELECT
                 ho.order_id,
@@ -75,7 +76,7 @@ class WebwinkelKeurHikaShopPlatform implements WebwinkelKeurShopPlatform {
                 )
                 AND hu.user_email LIKE '%@%'
                 AND ho.order_status = 'shipped'
-                AND ho.order_id >= (SELECT start_id FROM `#__webwinkelkeur_hikashop_invites_start` LIMIT 1)
+                AND ho.order_id > $min_order_id
         ")->loadAssocList();
     }
 
@@ -165,6 +166,33 @@ class WebwinkelKeurHikaShopPlatform implements WebwinkelKeurShopPlatform {
 
         $orders_cache[$order['order_id']] = $order_data;
         return $order_data;
+    }
+
+    private function getLastOrderBeforePluginId() {
+        $select_query = 'SELECT * FROM `#__webwinkelkeur_hikashop_invites_start`';
+        $result = null;
+        try {
+            $result = $this->db->setQuery($select_query)->loadAssoc();
+        } catch (JDatabaseExceptionExecuting $e) {
+            if ($e->getCode() != 1146) {
+                throw $e;
+            }
+            $create_query = '
+                CREATE TABLE IF NOT EXISTS `#__webwinkelkeur_hikashop_invites_start` (
+                    `start_id` INT UNSIGNED NOT NULL DEFAULT 0
+                );
+            ';
+            $this->db->setQuery($create_query)->execute();
+        }
+        if (empty ($result)) {
+            $insert_query = '
+                INSERT INTO `#__webwinkelkeur_hikashop_invites_start`
+                SELECT COALESCE(MAX(`order_id`), 0) FROM `#__hikashop_order`
+            ';
+            $this->db->setQuery($insert_query)->execute();
+            $result = $this->db->setQuery($select_query)->loadAssoc();
+        }
+        return $result['start_id'];
     }
 
     private function getProduct($productId) {

@@ -26,6 +26,7 @@ class WebwinkelKeurVirtuemartPlatform implements WebwinkelKeurShopPlatform {
     }
 
     public function getOrdersToInvite() {
+        $min_order_id = $this->getLastOrderBeforePluginId();
         return $this->db->setQuery("
             SELECT
                 vo.virtuemart_order_id,
@@ -51,7 +52,7 @@ class WebwinkelKeurVirtuemartPlatform implements WebwinkelKeurShopPlatform {
                 )
                 AND vou.email LIKE '%@%'
                 AND vo.order_status = 'S'
-                AND vo.virtuemart_order_id >= (SELECT start_id FROM `#__webwinkelkeur_virtuemart_invites_start` LIMIT 1)
+                AND vo.virtuemart_order_id > $min_order_id
         ")->loadAssocList();
     }
 
@@ -168,6 +169,33 @@ class WebwinkelKeurVirtuemartPlatform implements WebwinkelKeurShopPlatform {
                     `time` = " . $now . "
             ");
         $this->db->execute();
+    }
+
+    private function getLastOrderBeforePluginId() {
+        $select_query = 'SELECT * FROM `#__webwinkelkeur_virtuemart_invites_start`';
+        $result = null;
+        try {
+            $result = $this->db->setQuery($select_query)->loadAssoc();
+        } catch (JDatabaseExceptionExecuting $e) {
+            if ($e->getCode() != 1146) {
+                throw $e;
+            }
+            $create_query = '
+                CREATE TABLE IF NOT EXISTS `#__webwinkelkeur_virtuemart_invites_start` (
+                    `start_id` INT UNSIGNED NOT NULL DEFAULT 0
+                );
+            ';
+            $this->db->setQuery($create_query)->execute();
+        }
+        if (empty ($result)) {
+            $insert_query = '
+                INSERT INTO `#__webwinkelkeur_virtuemart_invites_start`
+                SELECT COALESCE(MAX(`virtuemart_order_id`), 0) FROM `#__virtuemart_orders`
+            ';
+            $this->db->setQuery($insert_query)->execute();
+            $result = $this->db->setQuery($select_query)->loadAssoc();
+        }
+        return $result['start_id'];
     }
 
 }
