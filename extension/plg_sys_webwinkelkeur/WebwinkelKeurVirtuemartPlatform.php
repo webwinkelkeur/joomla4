@@ -101,32 +101,36 @@ class WebwinkelKeurVirtuemartPlatform implements WebwinkelKeurShopPlatform {
             . $order['virtuemart_order_id'];
         $order_info['order_lines'] = $this->db->setQuery($lines_query)->loadAssocList();
 
+        $products = array();
+
         $product_ids = join(',', array_map(function ($line) {
             return $line['virtuemart_product_id'];
         }, $order_info['order_lines']));
-        $products_query = "SELECT * FROM `#__virtuemart_products` WHERE `virtuemart_product_id` IN ($product_ids)";
-        $products = array();
-        foreach ($this->db->setQuery($products_query)->loadAssocList() as $product) {
-            $product['images'] = array();
-            $products[$product['virtuemart_product_id']] = $product;
-        }
 
-        $product_ids = join(',', array_keys($products));
-        $images_query = "
-          SELECT 
-            `p`.`virtuemart_product_id`, 
-            `m`.`file_url`
-          FROM `#__virtuemart_products` AS `p`
-            LEFT JOIN `#__virtuemart_product_medias` AS `pm`
-              ON `p`.`virtuemart_product_id` = `pm`.`virtuemart_product_id`
-                  OR `p`.`product_parent_id` = `pm`.`virtuemart_product_id`
-            LEFT JOIN `#__virtuemart_medias` AS `m`
-              ON `pm`.`virtuemart_media_id` = `m`.`virtuemart_media_id`
-          WHERE `p`.`virtuemart_product_id` IN ($product_ids)";
-        foreach ($this->db->setQuery($images_query)->loadAssocList() as $image) {
-            $products[$image['virtuemart_product_id']]['images'][] =
-                'http' . (isset ($_SERVER['HTTPS']) ? 's' : '') . '://'
-                . $_SERVER['HTTP_HOST'] . '/' . $image['file_url'];
+        if ($product_ids) {
+            $products_query = "SELECT * FROM `#__virtuemart_products` WHERE `virtuemart_product_id` IN ($product_ids)";
+            foreach ($this->db->setQuery($products_query)->loadAssocList() as $product) {
+                $product['images'] = array();
+                $products[$product['virtuemart_product_id']] = $product;
+            }
+
+            $product_ids = join(',', array_keys($products));
+            $images_query = "
+              SELECT 
+                `p`.`virtuemart_product_id`, 
+                `m`.`file_url`
+              FROM `#__virtuemart_products` AS `p`
+                LEFT JOIN `#__virtuemart_product_medias` AS `pm`
+                  ON `p`.`virtuemart_product_id` = `pm`.`virtuemart_product_id`
+                      OR `p`.`product_parent_id` = `pm`.`virtuemart_product_id`
+                LEFT JOIN `#__virtuemart_medias` AS `m`
+                  ON `pm`.`virtuemart_media_id` = `m`.`virtuemart_media_id`
+              WHERE `p`.`virtuemart_product_id` IN ($product_ids)";
+            foreach ($this->db->setQuery($images_query)->loadAssocList() as $image) {
+                $products[$image['virtuemart_product_id']]['images'][] =
+                    'http' . (isset ($_SERVER['HTTPS']) ? 's' : '') . '://'
+                    . $_SERVER['HTTP_HOST'] . '/' . $image['file_url'];
+            }
         }
 
         $customer_query = "SELECT * FROM `#__users` WHERE `id` = " . $order_info['virtuemart_user_id'];
