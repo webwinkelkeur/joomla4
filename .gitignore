@@ -1,4 +1,5 @@
-.*.swp
 /dist
-.vagrant
 .DS_Store
+.*.swp
+.vagrant
+/www

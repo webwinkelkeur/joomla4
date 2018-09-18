@@ -1,0 +1,15 @@
+#!/bin/bash
+
+set -euo pipefail
+cd "$(dirname "$0")/.."
+
+say() { echo "$@" >&2; }
+say_do() { say "$@"; "$@"; }
+
+say_do rm -rf www/virtuemart
+say_do mysqladmin drop -f wwk_virtuemart
+
+say_do tar xf pkg/virtuemart.txz
+
+say_do mysqladmin create wwk_virtuemart
+< pkg/virtuemart.sql.xz xz -d | say_do mysql wwk_virtuemart
