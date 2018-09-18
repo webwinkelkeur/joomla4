@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <extension type="package" version="2.5.0">
     <name>WebwinkelKeur</name>
-    <version>1.2.0</version>
+    <version>$VERSION$</version>
     <packagename>webwinkelkeur</packagename>
     <packager>Albert Peschar en WebwinkelKeur</packager>
     <packagerurl>https://peschar.net</packagerurl>
-    <creationDate>January 2018</creationDate>
+    <creationDate>$DATE$</creationDate>
     <author>Albert Peschar en WebwinkelKeur</author>
     <authorEmail>albert@peschar.net</authorEmail>
     <authorUrl>https://peschar.net</authorUrl>
