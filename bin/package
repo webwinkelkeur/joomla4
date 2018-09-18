@@ -6,20 +6,38 @@ cd ..
 
 root=$PWD
 
+formatted_date="$(date '+%B %Y')"
+
+version="$(git tag -l --points-at=HEAD | grep '^v' | head -1)"
+if [[ -z $version ]]; then
+    version=HEAD
+fi
+
 tmp=`mktemp -d -t virtuemart.XXXXX`
 trap "rm -rf '$tmp'" EXIT
-mkdir $tmp/packages
 
-cd $root/extension/com_webwinkelkeur
-git archive -0 -o $tmp/packages/com_webwinkelkeur.zip HEAD .
+mkdir \
+    $tmp/out \
+    $tmp/out/packages \
+    $tmp/work
 
-cd $root/extension/plg_sys_webwinkelkeur
-git archive -0 -o $tmp/packages/plg_sys_webwinkelkeur.zip HEAD .
+git archive HEAD . | tar x -C $tmp/work
 
-git show HEAD:extension/pkg_webwinkelkeur.xml > $tmp/pkg_webwinkelkeur.xml
-git show HEAD:README.txt > $tmp/README.txt
-git show HEAD:COPYING.txt > $tmp/COPYING.txt
+cd $tmp/work
+find -type f -name '*.xml' \
+    -exec perl -p -i -e 's~\$VERSION\$~'"$version"'~g' {} + \
+    -exec perl -p -i -e 's~\$DATE\$~'"$formatted_date"'~g' {} +
 
-cd $tmp
+cd $tmp/work/extension/com_webwinkelkeur
+zip -qr0 $tmp/out/packages/com_webwinkelkeur.zip .
+
+cd $tmp/work/extension/plg_sys_webwinkelkeur
+zip -qr0 $tmp/out/packages/plg_sys_webwinkelkeur.zip .
+
+cp $tmp/work/extension/pkg_webwinkelkeur.xml $tmp/out/pkg_webwinkelkeur.xml
+cp $tmp/work/README.txt $tmp/out/README.txt
+cp $tmp/work/COPYING.txt $tmp/out/COPYING.txt
+
+cd $tmp/out
 mkdir -p $root/dist
 zip -qr9 $root/dist/pkg_webwinkelkeur.zip COPYING.txt README.txt pkg_webwinkelkeur.xml packages/
