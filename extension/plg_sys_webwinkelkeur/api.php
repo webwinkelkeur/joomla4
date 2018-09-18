@@ -35,10 +35,13 @@ class WebwinkelKeurAPI {
             return true;
         }
         if(preg_match('|already sent|', $result->message)) {
-            throw new WebwinkelKeurAPIAlreadySentError($url, $response);
+            throw new WebwinkelKeurAPIAlreadySentError($url, $result->message);
         }
         if(preg_match('|limit hit|', $result->message)) {
-            throw new WebwinkelKeurAPIAlreadySentError($url, $response);
+            throw new WebwinkelKeurAPIAlreadySentError($url, $result->message);
+        }
+        if(!empty($result->message)) {
+            throw new WebwinkelKeurAPIError($url, $result->message);
         }
         throw new WebwinkelKeurAPIError($url, $response);
     }
