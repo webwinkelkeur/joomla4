@@ -4,6 +4,8 @@ set -euo pipefail
 
 cd "$(dirname "$0")/.."
 
+git push github master --tags
+
 bin/package
 
 scp dist/pkg_webwinkelkeur.zip wwk16@atlas:public_html/download/modules/
