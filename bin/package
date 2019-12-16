@@ -8,10 +8,7 @@ root=$PWD
 
 formatted_date="$(date '+%B %Y')"
 
-version="$(git tag -l --points-at=HEAD | grep '^v' | head -1)"
-if [[ -z $version ]]; then
-    version=HEAD
-fi
+version="$(git describe --tags --match 'v*')"
 
 tmp=`mktemp -d -t virtuemart.XXXXX`
 trap "rm -rf '$tmp'" EXIT
