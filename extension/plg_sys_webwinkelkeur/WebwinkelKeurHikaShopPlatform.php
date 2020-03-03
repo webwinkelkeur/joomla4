@@ -76,7 +76,7 @@ class WebwinkelKeurHikaShopPlatform implements WebwinkelKeurShopPlatform {
                 )
                 AND hu.user_email LIKE '%@%'
                 AND ho.order_status = 'shipped'
-                AND ho.order_id > $min_order_id
+                AND ho.order_id > " . (int) $min_order_id . "
         ")->loadAssocList();
     }
 
@@ -116,10 +116,10 @@ class WebwinkelKeurHikaShopPlatform implements WebwinkelKeurShopPlatform {
             return $orders_cache[$order['order_id']];
         }
 
-        $order_query = "SELECT * FROM `#__hikashop_order` WHERE `order_id` = " . $order['order_id'];
+        $order_query = "SELECT * FROM `#__hikashop_order` WHERE `order_id` = " . (int) $order['order_id'];
         $order_info = $this->db->setQuery($order_query)->loadAssoc();
 
-        $order_lines_query = "SELECT * FROM `#__hikashop_order_product` WHERE `order_id` = " . $order['order_id'];
+        $order_lines_query = "SELECT * FROM `#__hikashop_order_product` WHERE `order_id` = " . (int) $order['order_id'];
         $order_info['order_lines'] = array();
         $products = array();
         foreach ($this->db->setQuery($order_lines_query)->loadAssocList() as $line) {
@@ -130,13 +130,13 @@ class WebwinkelKeurHikaShopPlatform implements WebwinkelKeurShopPlatform {
         }
 
         $customer_query  = "
-            SELECT * 
+            SELECT *
             FROM `#__hikashop_user` AS `user`
             LEFT JOIN `#__users` AS `cms_users`
-              ON `cms_users`.`id` = `user`.`user_cms_id` 
+              ON `cms_users`.`id` = `user`.`user_cms_id`
             LEFT JOIN `#__hikashop_currency` AS `currency`
               ON `currency`.`currency_id` = `user`.`user_currency_id`
-            WHERE `user`.`user_id` = " . $order_info['order_user_id'];
+            WHERE `user`.`user_id` = " . (int) $order_info['order_user_id'];
         $customer = $this->db->setQuery($customer_query)->loadAssoc();
         unset ($customer['password']);
 
@@ -148,10 +148,10 @@ class WebwinkelKeurHikaShopPlatform implements WebwinkelKeurShopPlatform {
             'invoice_address' => array()
         );
 
-        $address_ids = array_filter(array(
+        $address_ids = array_filter(array_map('intval', array(
             $order_info['order_billing_address_id'],
             $order_info['order_shipping_address_id']
-        ));
+        )));
         if (!empty ($address_ids)) {
             $address_query =
                 "SELECT * FROM `#__hikashop_address` WHERE `address_id` IN (" . join(',', $address_ids) . ")";
@@ -196,17 +196,17 @@ class WebwinkelKeurHikaShopPlatform implements WebwinkelKeurShopPlatform {
     }
 
     private function getProduct($productId) {
-        $query = "SELECT * FROM `#__hikashop_product` WHERE `product_id` = $productId";
+        $query = "SELECT * FROM `#__hikashop_product` WHERE `product_id` = " . (int) $productId;
         $result = $this->db->setQuery($query)->loadAssoc();
         if ($result && $result['product_parent_id']) {
             return $this->getProduct($result['product_parent_id']);
         }
         $images_query = "
-            SELECT `file_path` 
-            FROM `#__hikashop_file` 
-            WHERE 
-              `file_type` = 'product' 
-              AND `file_ref_id` = {$result['product_id']}
+            SELECT `file_path`
+            FROM `#__hikashop_file`
+            WHERE
+                `file_type` = 'product'
+                AND `file_ref_id` = " . (int) $result['product_id'] . "
         ";
         $result['image_urls'] = array();
         foreach ($this->db->setQuery($images_query)->loadColumn() as $image) {
@@ -218,16 +218,16 @@ class WebwinkelKeurHikaShopPlatform implements WebwinkelKeurShopPlatform {
     public function updateOrderInvitesSend($order, $error) {
         $now = time();
         $this->db->setQuery("
-                INSERT INTO `#__webwinkelkeur_hikashop_order` SET
-                    `hikashop_order_id` = " . (int) $order['order_id'] . ",
-                    `success` = " . ($error ? '0' : '1') . ",
-                    `tries` = 1,
-                    `time` = " . $now . "
-                ON DUPLICATE KEY UPDATE
-                    `success` = IF(`success` = 1, 1, " . ($error ? '0' : '1') . "),
-                    `tries` = `tries` + 1,
-                    `time` = " . $now . "
-            ")->execute();
+            INSERT INTO `#__webwinkelkeur_hikashop_order` SET
+                `hikashop_order_id` = " . (int) $order['order_id'] . ",
+                `success` = " . ($error ? '0' : '1') . ",
+                `tries` = 1,
+                `time` = " . $now . "
+            ON DUPLICATE KEY UPDATE
+                `success` = IF(`success` = 1, 1, " . ($error ? '0' : '1') . "),
+                `tries` = `tries` + 1,
+                `time` = " . $now . "
+        ")->execute();
     }
 
 }
