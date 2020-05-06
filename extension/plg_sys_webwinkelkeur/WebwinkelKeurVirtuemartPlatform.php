@@ -115,7 +115,8 @@ class WebwinkelKeurVirtuemartPlatform implements WebwinkelKeurShopPlatform {
             }
 
             $product_ids = join(',', array_keys($products));
-            $images_query = "
+            if ($product_ids) {
+                $images_query = "
               SELECT 
                 `p`.`virtuemart_product_id`, 
                 `m`.`file_url`
@@ -126,10 +127,11 @@ class WebwinkelKeurVirtuemartPlatform implements WebwinkelKeurShopPlatform {
                 LEFT JOIN `#__virtuemart_medias` AS `m`
                   ON `pm`.`virtuemart_media_id` = `m`.`virtuemart_media_id`
               WHERE `p`.`virtuemart_product_id` IN ($product_ids)";
-            foreach ($this->db->setQuery($images_query)->loadAssocList() as $image) {
-                $products[$image['virtuemart_product_id']]['images'][] =
-                    'http' . (isset ($_SERVER['HTTPS']) ? 's' : '') . '://'
-                    . $_SERVER['HTTP_HOST'] . '/' . $image['file_url'];
+                foreach ($this->db->setQuery($images_query)->loadAssocList() as $image) {
+                    $products[$image['virtuemart_product_id']]['images'][] =
+                        'http' . (isset ($_SERVER['HTTPS']) ? 's' : '') . '://'
+                        . $_SERVER['HTTP_HOST'] . '/' . $image['file_url'];
+                }
             }
         }
 
