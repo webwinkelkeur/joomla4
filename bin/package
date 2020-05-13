@@ -10,6 +10,8 @@ formatted_date="$(date '+%B %Y')"
 
 version="$(git describe --tags --match 'v*')"
 
+echo "Packaging version ${version}" >&2
+
 tmp=`mktemp -d -t virtuemart.XXXXX`
 trap "rm -rf '$tmp'" EXIT
 
@@ -36,5 +38,6 @@ cp $tmp/work/README.txt $tmp/out/README.txt
 cp $tmp/work/COPYING.txt $tmp/out/COPYING.txt
 
 cd $tmp/out
+rm -rf $root/dist
 mkdir -p $root/dist
 zip -qr9 $root/dist/pkg_webwinkelkeur.zip COPYING.txt README.txt pkg_webwinkelkeur.xml packages/
