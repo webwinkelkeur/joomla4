@@ -4,8 +4,12 @@ set -euo pipefail
 
 cd "$(dirname "$0")/.."
 
-git push github master --tags
+git push git@github.com:webwinkelkeur/joomla master --tags
 
 bin/package
 
-scp dist/pkg_webwinkelkeur.zip wwk16@atlas:public_html/download/modules/
+scp dist/pkg_webwinkelkeur.zip wwk19@atlas:www/download/modules/
+
+if tag="$(git describe --tags --exact-match --match 'v*')"; then
+    hub release create -a dist/pkg_webwinkelkeur.zip -m "$tag" -o "$tag"
+fi
