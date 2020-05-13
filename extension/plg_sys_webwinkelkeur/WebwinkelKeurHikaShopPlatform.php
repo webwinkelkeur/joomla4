@@ -96,7 +96,9 @@ class WebwinkelKeurHikaShopPlatform implements WebwinkelKeurShopPlatform {
         return $order['customer_name'];
     }
 
-    public function getOrderLanguage($order) {}
+    public function getOrderLanguage($order) {
+        return isset($this->getOrderData($order)['order']['order_lang']) ? $this->getOrderData($order)['order']['order_lang'] : null;
+    }
 
     public function getOrderPhones($order) {
         $order_data = $this->getOrderData($order);
