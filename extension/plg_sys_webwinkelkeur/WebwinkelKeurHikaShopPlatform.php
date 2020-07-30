@@ -175,7 +175,7 @@ class WebwinkelKeurHikaShopPlatform implements WebwinkelKeurShopPlatform {
         $result = null;
         try {
             $result = $this->db->setQuery($select_query)->loadAssoc();
-        } catch (JDatabaseExceptionExecuting $e) {
+        } catch (RuntimeException $e) {
             if ($e->getCode() != 1146) {
                 throw $e;
             }
