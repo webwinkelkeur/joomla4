@@ -183,9 +183,6 @@ class WebwinkelKeurVirtuemartPlatform implements WebwinkelKeurShopPlatform {
         try {
             $result = $this->db->setQuery($select_query)->loadAssoc();
         } catch (RuntimeException $e) {
-            if ($e->getCode() != 1146) {
-                throw $e;
-            }
             $create_query = '
                 CREATE TABLE IF NOT EXISTS `#__webwinkelkeur_virtuemart_invites_start` (
                     `start_id` INT UNSIGNED NOT NULL DEFAULT 0
