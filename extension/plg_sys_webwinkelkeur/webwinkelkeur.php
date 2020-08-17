@@ -81,7 +81,12 @@ class PlgSystemWebwinkelKeur extends JPlugin {
             return;
 
         // find orders
-        $orders = $platform->getOrdersToInvite();
+        try {
+            $orders = $platform->getOrdersToInvite();
+        } catch (RuntimeException $e) {
+            return;
+        }
+
         if(!$orders)
             return;
 
