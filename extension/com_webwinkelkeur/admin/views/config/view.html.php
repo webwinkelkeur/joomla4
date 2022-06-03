@@ -4,6 +4,8 @@
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
+use Joomla\CMS\Factory;
+
 defined('_JEXEC') or die('Restricted access');
  
 jimport('joomla.application.component.view');
@@ -15,7 +17,7 @@ class WebwinkelKeurViewConfig extends JViewLegacy {
     function display($tpl = null) {
         $this->config = $this->get('Config');
 
-        $db = JFactory::getDBO();
+        $db = Factory::getContainer()->get('DatabaseDriver');
         $db->setQuery("SELECT enabled FROM #__extensions WHERE element = 'com_virtuemart'");
         $this->virtuemart = $db->loadResult();
         $db->setQuery("SELECT enabled FROM #__extensions WHERE element = 'com_hikashop'");
