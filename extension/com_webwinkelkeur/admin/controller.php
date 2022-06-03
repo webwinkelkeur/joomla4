@@ -38,7 +38,8 @@ class WebwinkelKeurController extends JControllerLegacy {
     }
 
     private function doApply() {
-        $config = $this->get('Config');
+        $app = JFactory::getApplication();
+        $config = $app->input->post->getArray();
         $errors = array();
 
         foreach($this->wwk_fields as $field_name) {

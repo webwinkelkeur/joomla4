@@ -36,4 +36,8 @@ class WebwinkelKeurModelConfig extends JModelItem {
         $db->setQuery("SELECT `enabled` FROM `#__extensions` WHERE `name` = 'virtuemart' LIMIT 1");
         return !!$db->loadResult();
     }
+
+    public function getItem($pk = null) {
+        // TODO: Implement getItem() method.
+    }
 }

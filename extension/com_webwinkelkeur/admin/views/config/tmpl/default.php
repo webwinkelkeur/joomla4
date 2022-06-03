@@ -6,7 +6,8 @@
 
 defined('_JEXEC') or die('Restricted Access');
 
-JHtml::_('behavior.tooltip');
+//TODO not sure what to do replace this with yet
+//JHtml::_('behavior.tooltip');
 
 $config = $this->config;
 
