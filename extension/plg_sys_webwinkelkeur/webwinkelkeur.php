@@ -15,14 +15,14 @@ class PlgSystemWebwinkelKeur extends JPlugin {
 
     public function onBeforeCompileHead() {
         $app = JFactory::getApplication();
-        if($app->isSite())
+        if($app->isClient('site'))
             $this->addScript();
     }
 
     public function onAfterInitialise() {
         $app = JFactory::getApplication();
         $db = JFactory::getDBO();
-        if(!$app->isSite()) {
+        if(!$app->isClient('site')) {
             $this->sendPlatformInvites(new WebwinkelKeurHikaShopPlatform($db));
             $this->sendPlatformInvites(new WebwinkelKeurVirtuemartPlatform($db));
         }

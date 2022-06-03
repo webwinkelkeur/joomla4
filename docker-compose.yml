@@ -4,7 +4,6 @@ services:
   joomla:
     image: joomla
     restart: always
-    UPLOAD_LIMIT: 64M
     links:
       - joomladb:mysql
     ports:
