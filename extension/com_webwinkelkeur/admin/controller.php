@@ -20,7 +20,8 @@ class WebwinkelKeurController extends JControllerLegacy {
     
     function display($cachable = false, $urlparams = false) {
         // set default view if not set
-        $input = JFactory::getApplication()->input;
+        $app = JFactory::getApplication();
+        $input = $app->input;
         $input->set('view', $input->getCmd('view', 'Config'));
 
         // add toolbar
@@ -30,7 +31,7 @@ class WebwinkelKeurController extends JControllerLegacy {
         JToolBarHelper::cancel('cancel', 'JTOOLBAR_CLOSE');
 
         // set document title
-        $doc = JFactory::getDocument();
+        $doc = $app->getDocument();
         $doc->setTitle('WebwinkelKeur');
 
         // call parent behavior
