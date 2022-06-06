@@ -6,19 +6,16 @@
 
 defined('_JEXEC') or die('Restricted Access');
 
-//TODO not sure what to do replace this with yet
-//JHtml::_('behavior.tooltip');
-
 $config = $this->config;
 
 ?>
 <form action="<?php echo JRoute::_('index.php?option=com_webwinkelkeur'); ?>" method="POST" name="adminForm" id="adminForm">
     <table class="wwk-form">
-        <tr valign="top">
+        <tr style="vertical-align: top;">
             <th scope="row"><label for="wwk-shop-id">Webwinkel ID</label></th>
             <td><input name="webwinkelkeur_wwk_shop_id" type="text" id="wwk-shop-id" value="<?php echo htmlspecialchars(@$config['wwk_shop_id'], ENT_QUOTES, 'UTF-8'); ?>" class="regular-text" /></td>
         </tr>
-        <tr valign="top">
+        <tr style="vertical-align: top;">
             <th scope="row"><label for="wwk-api-key">API key</label></th>
             <td><input name="webwinkelkeur_wwk_api_key" type="text" id="wwk-api-key" value="<?php echo htmlspecialchars(@$config['wwk_api_key'], ENT_QUOTES, 'UTF-8'); ?>" class="regular-text" />
             <p class="description">
@@ -26,7 +23,7 @@ $config = $this->config;
             </p>
             </td>
         </tr>
-        <tr valign="top">
+        <tr style="vertical-align: top;">
             <th scope="row"><label for="webwinkelkeur-javascript">JavaScript-integratie</label></th>
             <td>
                 <label>
@@ -40,7 +37,7 @@ $config = $this->config;
             </td>
         </tr> 
         <?php if($this->virtuemart OR $this->hikashop): ?>
-        <tr valign="top">
+        <tr style="vertical-align: top;">
             <th scope="row">Uitleg Uitnodigingen versturen</th>
             <td>
             <p class="description">
@@ -49,7 +46,7 @@ $config = $this->config;
             </p>
             </td>
         </tr>
-        <tr valign="top">
+        <tr style="vertical-align: top;">
             <th scope="row">Uitnodigingen versturen</th>
             <td>
                 <fieldset>
@@ -68,7 +65,7 @@ $config = $this->config;
                 </fieldset>
             </td>
         </tr>
-        <tr valign="top">
+        <tr style="vertical-align: top;">
             <th scope="row"></th>
             <td>
                 <fieldset>
@@ -83,7 +80,7 @@ $config = $this->config;
                 </fieldset>
             </td>
         </tr>
-        <tr valign="top">
+        <tr style="vertical-align: top;">
             <th scope="row"><label for="webwinkelkeur-invite-delay">Wachttijd voor uitnodiging</label></th>
             <td><input name="webwinkelkeur_invite_delay" type="text" id="webwinkelkeur-invite-delay" value="<?php echo htmlspecialchars(@$config['invite_delay'], ENT_QUOTES, 'UTF-8'); ?>" class="small-text" />
             <p class="description">
