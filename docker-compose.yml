@@ -3,18 +3,15 @@ version: '3.1'
 services:
   joomla:
     image: joomla
-    links:
-      - joomladb:mysql
     ports:
       - 32761:80
     environment:
       JOOMLA_DATABASE_USER: bn_joomla
-      JOOMLA_DB_HOST: joomladb
+      JOOMLA_DB_HOST: mysql
       JOOMLA_DB_PASSWORD: example
 
-  joomladb:
-    platform: linux/x86_64
-    image: mysql:5.6
+  mysql:
+    image: mariadb
     environment:
       MYSQL_ROOT_PASSWORD: example
     ports:
