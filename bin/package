@@ -23,7 +23,7 @@ mkdir \
 git archive HEAD . | tar x -C $tmp/work
 
 cd $tmp/work
-find -type f -name '*.xml' \
+find . -type f -name '*.xml' \
     -exec perl -p -i -e 's~\$VERSION\$~'"$version"'~g' {} + \
     -exec perl -p -i -e 's~\$DATE\$~'"$formatted_date"'~g' {} +
 

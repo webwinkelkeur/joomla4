@@ -4,6 +4,8 @@
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
+use Joomla\CMS\Factory;
+
 defined('_JEXEC') or die('Restricted access');
 
 require_once dirname(__FILE__) . '/WebwinkelKeurShopPlatform.php';
@@ -15,14 +17,14 @@ class PlgSystemWebwinkelKeur extends JPlugin {
 
     public function onBeforeCompileHead() {
         $app = JFactory::getApplication();
-        if($app->isSite())
+        if($app->isClient('site'))
             $this->addScript();
     }
 
     public function onAfterInitialise() {
         $app = JFactory::getApplication();
-        $db = JFactory::getDBO();
-        if(!$app->isSite()) {
+        $db = Factory::getContainer()->get('DatabaseDriver');
+        if(!$app->isClient('site')) {
             $this->sendPlatformInvites(new WebwinkelKeurHikaShopPlatform($db));
             $this->sendPlatformInvites(new WebwinkelKeurVirtuemartPlatform($db));
         }
@@ -30,7 +32,7 @@ class PlgSystemWebwinkelKeur extends JPlugin {
 
     private function getConfig() {
         if(!isset($this->config)) {
-            $db = JFactory::getDBO();
+            $db = Factory::getContainer()->get('DatabaseDriver');
             $db->setQuery("SELECT `value` FROM `#__webwinkelkeur_config` WHERE `id` = 1");
             $result = $db->loadResult();
             if($result) {
@@ -64,7 +66,7 @@ class PlgSystemWebwinkelKeur extends JPlugin {
 
     private function sendPlatformInvites(WebwinkelKeurShopPlatform $platform) {
         $app = JFactory::getApplication();
-        $db = JFactory::getDBO();
+        $db = Factory::getContainer()->get('DatabaseDriver');
         $config = $this->getConfig();
 
         // platform enabled?
@@ -148,7 +150,7 @@ class PlgSystemWebwinkelKeur extends JPlugin {
                         `time` = " . time() . ",
                         `reported` = 0
                 ");
-                $db->query();
+                $db->execute();
                 $app->enqueueMessage("De WebwinkelKeur uitnodiging voor order {$platform->getOrderId($order)} kon niet worden verstuurd. -- $error", 'error');
             }
         }

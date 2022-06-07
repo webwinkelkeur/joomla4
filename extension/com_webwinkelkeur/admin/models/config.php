@@ -4,6 +4,8 @@
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
+use Joomla\CMS\Factory;
+
 defined('_JEXEC') or die('Restricted access');
 
 jimport('joomla.application.component.modelitem');
@@ -16,7 +18,7 @@ class WebwinkelKeurModelConfig extends JModelItem {
 
     public function getConfig() {
         $config = $this->wwk_config;
-        $db = JFactory::getDBO();
+        $db = Factory::getContainer()->get('DatabaseDriver');
         $db->setQuery("SELECT `value` FROM `#__webwinkelkeur_config` WHERE id = 1");
         $result = $db->loadResult();
         if($result)
@@ -26,14 +28,18 @@ class WebwinkelKeurModelConfig extends JModelItem {
 
     public function setConfig($config) {
         $json = json_encode($config);
-        $db = JFactory::getDBO();
+        $db = Factory::getContainer()->get('DatabaseDriver');
         $db->setQuery("REPLACE INTO `#__webwinkelkeur_config` SET `id` = 1, `value` = " . $db->quote($json));
-        return !!$db->query();
+        return !!$db->execute();
     }
 
     public function getVirtueMart() {
-        $db = JFactory::getDBO();
+        $db = Factory::getContainer()->get('DatabaseDriver');
         $db->setQuery("SELECT `enabled` FROM `#__extensions` WHERE `name` = 'virtuemart' LIMIT 1");
         return !!$db->loadResult();
+    }
+
+    public function getItem($pk = null) {
+        // TODO: Implement getItem() method.
     }
 }

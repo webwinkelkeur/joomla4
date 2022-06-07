@@ -6,7 +6,8 @@
 
 defined('_JEXEC') or die('Restricted access');
 
-$doc = JFactory::getDocument();
+$app = JFactory::getApplication();
+$doc = $app->getDocument();
 $doc->addStyleDeclaration('.icon-48-webwinkelkeur { background-image: url(../media/com_webwinkelkeur/images/logo48.png); }');
 $doc->addStyleSheet('components/com_webwinkelkeur/webwinkelkeur.css');
  
@@ -16,8 +17,8 @@ if (!class_exists('JControllerLegacy')) {
 }
  
 $controller = JControllerLegacy::getInstance('WebwinkelKeur');
- 
-$jinput = JFactory::getApplication()->input;
+
+$jinput = $app->input;
 $task = $jinput->get('task', "", 'STR' );
  
 $controller->execute($task);

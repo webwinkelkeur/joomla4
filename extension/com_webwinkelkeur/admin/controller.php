@@ -8,7 +8,7 @@ defined('_JEXEC') or die('Restricted access');
  
 jimport('joomla.application.component.controller');
  
-class WebwinkelKeurController extends JControllerLegacy {
+class WebwinkelKeurController extends \Joomla\CMS\MVC\Controller\BaseController {
     private $wwk_fields = array(
         'wwk_shop_id',
         'wwk_api_key',
@@ -20,7 +20,8 @@ class WebwinkelKeurController extends JControllerLegacy {
     
     function display($cachable = false, $urlparams = false) {
         // set default view if not set
-        $input = JFactory::getApplication()->input;
+        $app = JFactory::getApplication();
+        $input = $app->input;
         $input->set('view', $input->getCmd('view', 'Config'));
 
         // add toolbar
@@ -30,7 +31,7 @@ class WebwinkelKeurController extends JControllerLegacy {
         JToolBarHelper::cancel('cancel', 'JTOOLBAR_CLOSE');
 
         // set document title
-        $doc = JFactory::getDocument();
+        $doc = $app->getDocument();
         $doc->setTitle('WebwinkelKeur');
 
         // call parent behavior
@@ -38,7 +39,8 @@ class WebwinkelKeurController extends JControllerLegacy {
     }
 
     private function doApply() {
-        $config = $this->get('Config');
+        $app = JFactory::getApplication();
+        $config = $app->input->post->getArray();
         $errors = array();
 
         foreach($this->wwk_fields as $field_name) {
