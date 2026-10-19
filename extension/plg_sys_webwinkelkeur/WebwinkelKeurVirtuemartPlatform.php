@@ -1,7 +1,6 @@
 <?php
 
 use Joomla\CMS\Component\ComponentHelper;
-use Joomla\CMS\Log\Log;
 use Joomla\CMS\Uri\Uri;
 
 require_once dirname(__FILE__) . '/WebwinkelKeurShopPlatform.php';
@@ -188,11 +187,7 @@ class WebwinkelKeurVirtuemartPlatform implements WebwinkelKeurShopPlatform {
                     'variant' => $variant
                 ));
             } catch (Throwable $e) {
-                Log::add(
-                    'WebwinkelKeur: could not read VirtueMart product ' . $line['virtuemart_product_id'] . ': ' . $e->getMessage(),
-                    Log::WARNING,
-                    'webwinkelkeur'
-                );
+                // A product that cannot be read is left out instead of failing the whole order
             }
         }
         return array_values($products);
