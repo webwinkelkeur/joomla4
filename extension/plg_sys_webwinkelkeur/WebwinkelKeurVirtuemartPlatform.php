@@ -1,5 +1,9 @@
 <?php
 
+use Joomla\CMS\Component\ComponentHelper;
+use Joomla\CMS\Log\Log;
+use Joomla\CMS\Uri\Uri;
+
 require_once dirname(__FILE__) . '/WebwinkelKeurShopPlatform.php';
 class WebwinkelKeurVirtuemartPlatform implements WebwinkelKeurShopPlatform {
 
@@ -8,6 +12,8 @@ class WebwinkelKeurVirtuemartPlatform implements WebwinkelKeurShopPlatform {
      * @since 1.0.1
      */
     private $db;
+
+    private $table_list;
 
     public function __construct($db) {
         $this->db = $db;
@@ -73,16 +79,16 @@ class WebwinkelKeurVirtuemartPlatform implements WebwinkelKeurShopPlatform {
     }
 
     public function getOrderPhones($order) {
-        $order_data = $this->getOrderData($order);
-        $phones = array(
-            $order_data['invoice_address']['phone_1'],
-            $order_data['invoice_address']['phone_2']
-        );
-        if (isset ($order_data['delivery_address'])) {
-            $phones[] = $order_data['delivery_address']['phone_1'];
-            $phones[] = $order_data['delivery_address']['phone_2'];
+        $addresses = $this->db->setQuery(
+            "SELECT `phone_1`, `phone_2` FROM `#__virtuemart_order_userinfos` WHERE `virtuemart_order_id` = "
+            . (int) $order['virtuemart_order_id'] . " ORDER BY `address_type` = 'BT' DESC"
+        )->loadAssocList();
+        $phones = array();
+        foreach ($addresses as $address) {
+            $phones[] = $address['phone_1'];
+            $phones[] = $address['phone_2'];
         }
-        return array_unique(array_filter($phones));
+        return array_values(array_unique(array_filter($phones)));
     }
 
     public function getOrderTotal($order) {
@@ -101,41 +107,9 @@ class WebwinkelKeurVirtuemartPlatform implements WebwinkelKeurShopPlatform {
             . $order['virtuemart_order_id'];
         $order_info['order_lines'] = $this->db->setQuery($lines_query)->loadAssocList();
 
-        $products = array();
+        $products = $this->getProducts($order_info['order_lines'], $order_info['order_language']);
 
-        $product_ids = join(',', array_map(function ($line) {
-            return $line['virtuemart_product_id'];
-        }, $order_info['order_lines']));
-
-        if ($product_ids) {
-            $products_query = "SELECT * FROM `#__virtuemart_products` WHERE `virtuemart_product_id` IN ($product_ids)";
-            foreach ($this->db->setQuery($products_query)->loadAssocList() as $product) {
-                $product['images'] = array();
-                $products[$product['virtuemart_product_id']] = $product;
-            }
-
-            $product_ids = join(',', array_keys($products));
-            if ($product_ids) {
-                $images_query = "
-              SELECT 
-                `p`.`virtuemart_product_id`, 
-                `m`.`file_url`
-              FROM `#__virtuemart_products` AS `p`
-                LEFT JOIN `#__virtuemart_product_medias` AS `pm`
-                  ON `p`.`virtuemart_product_id` = `pm`.`virtuemart_product_id`
-                      OR `p`.`product_parent_id` = `pm`.`virtuemart_product_id`
-                LEFT JOIN `#__virtuemart_medias` AS `m`
-                  ON `pm`.`virtuemart_media_id` = `m`.`virtuemart_media_id`
-              WHERE `p`.`virtuemart_product_id` IN ($product_ids)";
-                foreach ($this->db->setQuery($images_query)->loadAssocList() as $image) {
-                    $products[$image['virtuemart_product_id']]['images'][] =
-                        'http' . (isset ($_SERVER['HTTPS']) ? 's' : '') . '://'
-                        . $_SERVER['HTTP_HOST'] . '/' . $image['file_url'];
-                }
-            }
-        }
-
-        $customer_query = "SELECT * FROM `#__users` WHERE `id` = " . $order_info['virtuemart_user_id'];
+        $customer_query = "SELECT * FROM `#__users` WHERE `id` = " . (int) $order_info['virtuemart_user_id'];
         $customer = $this->db->setQuery($customer_query)->loadAssoc();
         if (!empty ($customer)) {
             unset ($customer['password']);
@@ -143,7 +117,7 @@ class WebwinkelKeurVirtuemartPlatform implements WebwinkelKeurShopPlatform {
 
         $order_data = array(
             'order' => $order_info,
-            'products' => array_values($products),
+            'products' => $products,
             'customer' => $customer
         );
 
@@ -159,6 +133,183 @@ class WebwinkelKeurVirtuemartPlatform implements WebwinkelKeurShopPlatform {
         $orders_cache[$order['virtuemart_order_id']] = $order_data;
 
         return $order_data;
+    }
+
+    private function getProducts(array $order_lines, $language) {
+        $products = array();
+        foreach ($order_lines as $line) {
+            try {
+                $product_id = (int) $line['virtuemart_product_id'];
+                if (!$product_id || isset ($products[$product_id])) {
+                    continue;
+                }
+                $product = $this->db->setQuery(
+                    "SELECT * FROM `#__virtuemart_products` WHERE `virtuemart_product_id` = $product_id"
+                )->loadAssoc();
+                if (!$product) {
+                    continue;
+                }
+
+                $parent = $this->getVariantParent($product);
+                $main = $parent ?: $product;
+                $main_id = (int) $main['virtuemart_product_id'];
+                $product_ids = array_values(array_unique(array_filter(array(
+                    $main_id,
+                    $product_id,
+                    (int) $product['product_parent_id']
+                ))));
+                $sku = $line['order_item_sku'] !== '' ? $line['order_item_sku'] : $product['product_sku'];
+                $name = $line['order_item_name'];
+
+                $variant = null;
+                if ($parent) {
+                    $variant = $this->filterEmpty(array(
+                        'id' => (string) $product_id,
+                        'name' => $name,
+                        'image_url' => $this->getProductImageUrl(array($product_id)),
+                        'sku' => $sku,
+                        'gtin' => $product['product_gtin'],
+                        'mpn' => $product['product_mpn']
+                    ));
+                    $name = $this->getProductName($main_id, $language) ?: $name;
+                }
+
+                $products[$product_id] = $this->filterEmpty(array(
+                    'id' => (string) $main_id,
+                    'name' => $name,
+                    'url' => Uri::root()
+                        . 'index.php?option=com_virtuemart&view=productdetails&virtuemart_product_id=' . $main_id,
+                    'image_url' => $this->getProductImageUrl($product_ids),
+                    'sku' => $sku,
+                    'gtin' => $product['product_gtin'],
+                    'mpn' => $main['product_mpn'],
+                    'brand' => $this->getProductBrand($product_ids, $language),
+                    'price' => (float) $line['product_final_price'],
+                    'variant' => $variant
+                ));
+            } catch (Throwable $e) {
+                Log::add(
+                    'WebwinkelKeur: could not read VirtueMart product ' . $line['virtuemart_product_id'] . ': ' . $e->getMessage(),
+                    Log::WARNING,
+                    'webwinkelkeur'
+                );
+            }
+        }
+        return array_values($products);
+    }
+
+    /**
+     * Returns the parent if the product is one of its variants, i.e. the parent is published and offers its
+     * children through a "Generic Child Variant" (A) or "Multi Variant" (C) custom field. Children of other
+     * parents, like VirtueMart's pattern products, are separate products that only inherit from their parent.
+     */
+    private function getVariantParent(array $product) {
+        $parent_id = (int) $product['product_parent_id'];
+        if (!$parent_id) {
+            return null;
+        }
+        $parent = $this->db->setQuery("
+            SELECT `p`.*
+            FROM `#__virtuemart_products` AS `p`
+            WHERE
+                `p`.`virtuemart_product_id` = $parent_id
+                AND `p`.`published` = 1
+                AND EXISTS (
+                    SELECT 1
+                    FROM `#__virtuemart_product_customfields` AS `pc`
+                    INNER JOIN `#__virtuemart_customs` AS `c`
+                        ON `c`.`virtuemart_custom_id` = `pc`.`virtuemart_custom_id`
+                    WHERE
+                        `pc`.`virtuemart_product_id` = `p`.`virtuemart_product_id`
+                        AND `pc`.`published` = 1
+                        AND `pc`.`disabler` = 0
+                        AND `c`.`field_type` IN ('A', 'C')
+                        AND `c`.`published` = 1
+                )
+        ")->loadAssoc();
+        return $parent ?: null;
+    }
+
+    private function getProductName($product_id, $language) {
+        foreach ($this->getLanguageTables('#__virtuemart_products', $language) as $table) {
+            $name = $this->db->setQuery(
+                "SELECT `product_name` FROM `$table` WHERE `virtuemart_product_id` = " . (int) $product_id
+            )->loadResult();
+            if ($name) {
+                return $name;
+            }
+        }
+        return null;
+    }
+
+    private function getProductImageUrl(array $product_ids) {
+        $file_url = $this->db->setQuery("
+            SELECT `m`.`file_url`
+            FROM `#__virtuemart_product_medias` AS `pm`
+            INNER JOIN `#__virtuemart_medias` AS `m`
+                ON `m`.`virtuemart_media_id` = `pm`.`virtuemart_media_id`
+            WHERE
+                `pm`.`virtuemart_product_id` IN (" . join(',', $product_ids) . ")
+                AND `m`.`file_url` != ''
+                AND `m`.`file_is_forSale` = 0
+                AND `m`.`published` = 1
+            ORDER BY
+                FIELD(`pm`.`virtuemart_product_id`, " . join(',', $product_ids) . "),
+                `pm`.`ordering`
+            LIMIT 1
+        ")->loadResult();
+        if (!$file_url) {
+            return null;
+        }
+        if (preg_match('~^https?://~i', $file_url)) {
+            return $file_url;
+        }
+        return Uri::root() . ltrim($file_url, '/');
+    }
+
+    private function getProductBrand(array $product_ids, $language) {
+        foreach ($this->getLanguageTables('#__virtuemart_manufacturers', $language) as $table) {
+            $brand = $this->db->setQuery("
+                SELECT `mf`.`mf_name`
+                FROM `#__virtuemart_product_manufacturers` AS `pm`
+                INNER JOIN `$table` AS `mf`
+                    ON `mf`.`virtuemart_manufacturer_id` = `pm`.`virtuemart_manufacturer_id`
+                WHERE
+                    `pm`.`virtuemart_product_id` IN (" . join(',', $product_ids) . ")
+                    AND `mf`.`mf_name` != ''
+                ORDER BY FIELD(`pm`.`virtuemart_product_id`, " . join(',', $product_ids) . ")
+                LIMIT 1
+            ")->loadResult();
+            if ($brand) {
+                return $brand;
+            }
+        }
+        return null;
+    }
+
+    private function filterEmpty(array $data) {
+        return array_filter($data, function ($value) {
+            return $value !== null && $value !== '';
+        });
+    }
+
+    /**
+     * VirtueMart stores translations in one table per language, e.g. `#__virtuemart_manufacturers_nl_nl`.
+     * Returns the existing tables for the order language, the site language and en-GB, in that order.
+     */
+    private function getLanguageTables($table, $language) {
+        if (!isset ($this->table_list)) {
+            $this->table_list = array_map('strtolower', $this->db->getTableList());
+        }
+        $languages = array($language, ComponentHelper::getParams('com_languages')->get('site'), 'en-GB');
+        $tables = array();
+        foreach (array_filter($languages) as $lang) {
+            $lang_table = $table . '_' . strtolower(str_replace('-', '_', $lang));
+            if (in_array(strtolower($this->db->replacePrefix($lang_table)), $this->table_list)) {
+                $tables[] = $lang_table;
+            }
+        }
+        return array_unique($tables);
     }
 
     public function updateOrderInvitesSend($order, $error) {

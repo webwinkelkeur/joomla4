@@ -108,7 +108,6 @@ class PlgSystemWebwinkelKeur extends JPlugin {
                     'language'  => $platform->getOrderLanguage($order),
                     'client'    => $platform->getClientName(),
                     'customer_name' => $platform->getOrderCustomerName($order),
-                    'phone_numbers' => $platform->getOrderPhones($order),
                     'order_total'   => $platform->getOrderTotal($order),
                     'platform_version' => join('-', array(
                         'j',
@@ -123,9 +122,18 @@ class PlgSystemWebwinkelKeur extends JPlugin {
                     $data['max_invitations_per_email'] = 1;
                 }
                 if (empty ($config['limit_order_data']) || !$config['limit_order_data']) {
-                    $data['order_data'] = json_encode($platform->getOrderData($order));
+                    try {
+                        $order_data = json_encode(
+                            $platform->getOrderData($order),
+                            JSON_INVALID_UTF8_SUBSTITUTE | JSON_PARTIAL_OUTPUT_ON_ERROR
+                        );
+                        if ($order_data !== false) {
+                            $data['order_data'] = $order_data;
+                        }
+                    } catch (Throwable $e) {
+                        // Order data is optional: send the invitation without it
+                    }
                 }
-
 
                 try {
                     $api->invite($data);
@@ -137,7 +145,7 @@ class PlgSystemWebwinkelKeur extends JPlugin {
 
                 $platform->updateOrderInvitesSend($order, $error);
 
-            } catch (Exception $e) {
+            } catch (Throwable $e) {
                 $error = $e->getMessage();
                 $url = '';
             }
